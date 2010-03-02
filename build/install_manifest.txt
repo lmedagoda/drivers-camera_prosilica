@@ -1,7 +1,0 @@
-/home/aduda/CSurvey/build/drivers/include/camera_prosilica_gige/CamGigEProsilica.h
-/home/aduda/CSurvey/build/drivers/include/camera_prosilica_gige/CamGigEProsilicaLookUp.h
-/home/aduda/CSurvey/build/drivers/include/camera_prosilica_gige/arch.h
-/home/aduda/CSurvey/build/drivers/scripts/.git-dummy
-/home/aduda/CSurvey/build/drivers/lib/pkgconfig/camera_prosilica_gige.pc
-/home/aduda/CSurvey/build/drivers/lib/libcamera_prosilica_gige.so
-/home/aduda/CSurvey/drivers/camera_prosilica_gige/test/TestViewer
