@@ -47,7 +47,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # #include "subdirectory/myheader.h"
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/external/include)
-link_directories(${PROJECT_SOURCE_DIR}/external/bin/x86)
 link_directories(${PROJECT_SOURCE_DIR}/external/libs/x86/4.2)
 link_directories(${PROJECT_SOURCE_DIR}/build/lib)
 

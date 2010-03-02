@@ -4,7 +4,7 @@ SET(TestViewer TestViewer)
 add_library(${PROJECT_NAME} SHARED CamGigEProsilica.cpp)
 add_executable(${TestViewer} TestViewer.cpp)   
 
-target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} libPvAPI.a libcamera_interface.so libpthread.so)
+target_link_libraries(${PROJECT_NAME} librt.so libPvAPI.a libcamera_interface.so libpthread.so)
 target_link_libraries(${TestViewer} libcamera_prosilica_gige.so libcv.so libhighgui.so)
 
 install(TARGETS ${PROJECT_NAME} 
