@@ -47,7 +47,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # #include "subdirectory/myheader.h"
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/external/include)
-link_directories(${PROJECT_SOURCE_DIR}/build/lib)
 if (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 	link_directories(${PROJECT_SOURCE_DIR}/external/libs/x86/4.2)
 elseif (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
@@ -55,6 +54,8 @@ elseif (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
 else (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 	message(WARNING "Only 32 and 64 bit is supported by the prosilica api")
 endif (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
+
+link_directories(${PROJECT_SOURCE_DIR}/build/lib)
 
 include(FindPkgConfig)
 pkg_check_modules(CAM_INTERFACE REQUIRED "camera_interface")
@@ -70,9 +71,6 @@ link_directories(${OPENCV_LIBDIR})
 
 # Process CMakeLists.txt in the following subdirectory
 add_subdirectory(src)
-
-
-
 
 ##### COPY Configuration files into build directory
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/configuration ${PROJECT_BINARY_DIR}/configuration)
