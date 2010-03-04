@@ -2,12 +2,12 @@
 BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 
 [CMake]
-BuildDirs=/home/aduda/MyProject/camera_prosilica_gige/build
+BuildDirs[$e]=$HOME/CSurvey/drivers/camera_prosilica_gige/build
 CMakeDir=/usr/share/cmake-2.6/Modules
 Current CMake Binary=file:///usr/bin/cmake
-CurrentBuildDir=file:///home/aduda/MyProject/camera_prosilica_gige/build
-CurrentBuildType=
-CurrentInstallDir=
+CurrentBuildDir=file:///home/aduda/CSurvey/drivers/camera_prosilica_gige/build
+CurrentBuildType=Debug
+CurrentInstallDir=file:///home/aduda/CSurvey/build
 ProjectRootRelative=./
 
 [Project]

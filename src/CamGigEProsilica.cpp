@@ -299,7 +299,7 @@ namespace camera
 
         //swap buffers
         pframe->swap(frame);
-        frame.attribs.clear();
+        frame.attributes.clear();
    
         // there is no way to check by the api
         // if Acquistion hast stopped automatically
