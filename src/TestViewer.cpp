@@ -7,23 +7,27 @@
 
 using namespace camera;
 
+struct tes
+{
+  char text[64];
+};
+
 int main(int argc, char**argv)
 {
     //init frame
     Frame frame;
     frame_size_t size(640,480);
     frame.init(size.width,size.height,8,MODE_RGB,false);
-
+  
     //init camera
     CamGigEProsilica mycamera;
     CamInterface &camera = mycamera;
 
     //find and display all cameras
-    std::vector<CamInfo> cam_infos;
-    camera.listCameras(cam_infos);
-    showCamInfos(cam_infos);
+   // std::vector<CamInfo> cam_infos;
+   // camera.listCameras(cam_infos);
+   // showCamInfos(cam_infos);
 
-   
     try
     {
         //opens a specific camera

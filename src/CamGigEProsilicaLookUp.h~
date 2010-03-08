@@ -8,7 +8,7 @@
 #ifndef _CAMGIGEPROSILICALOOKUP_H
 #define	_CAMGIGEPROSILICALOOKUP_H
 
-#include "../../CamTypes.h"
+#include "camera_interface/CamTypes.h"
 #include <map>
 
 namespace camera

@@ -60,6 +60,15 @@ namespace camera
                 string1 = "ExposureMode";
                 string2 = "AutoOnce";
                 break;
+	    case enum_attrib::GainModeToManual:
+                string1 = "GainMode";
+                string2 = "Manual";
+                break;
+            case enum_attrib::GainModeToAuto:
+                string1 = "GainMode";
+                string2 = "Auto";
+                break;
+		
             default:
                throw std::runtime_error("Attribute is not supported by the "
                        "camera. Call isAttribAvail first!");
