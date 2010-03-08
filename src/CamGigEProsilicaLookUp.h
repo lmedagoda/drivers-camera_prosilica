@@ -359,12 +359,12 @@ namespace camera
         }
         else if(str == "Bayer8")
         {
-            mode = MODE_BAYER_GRBG;
+            mode = MODE_BAYER_GBRG;
             depth = 1;
         }
 	 else if(str == "Bayer16")
         {
-            mode = MODE_BAYER_GRBG;
+            mode = MODE_BAYER_GBRG;
             depth = 2;
         }
         else
@@ -408,7 +408,7 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
-	     case MODE_BAYER_GRBG:
+	     case MODE_BAYER_GBRG:
                 switch(depth)
                 {
                     case 1:

@@ -18,8 +18,8 @@ int main(int argc, char**argv)
     Frame frame;
     Frame frame2;
     frame_size_t size(640,480);
-    frame.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
-    frame2.init(size.width,size.height,24,MODE_RGB,false);
+    frame.init(size.width,size.height,8,MODE_BAYER_GBRG,false);
+    frame2.init(size.width,size.height,8,MODE_RGB,false);
     cv::Mat image (480, 640, CV_8UC3);
     
     //init camera
