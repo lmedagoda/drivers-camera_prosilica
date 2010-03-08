@@ -19,7 +19,7 @@ int main(int argc, char**argv)
     Frame frame2;
     frame_size_t size(640,480);
     frame.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
-    frame2.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
+    frame2.init(size.width,size.height,8,MODE_RGB,false);
     cv::Mat image (480, 640, CV_8UC3);
     
     //init camera
@@ -54,10 +54,10 @@ int main(int argc, char**argv)
             if (camera.isFrameAvailable())
             {
                 camera >> frame;
-		//cv::cvtColor(frame.convertToCvMat(), image, CV_BayerGR2RGB,3 );#
-		//cv::imshow("image",image);
-		Helper::convertColor(frame, frame2,MODE_RGB);
-                cv::imshow("image",image);
+	//	cv::cvtColor(frame.convertToCvMat(), image, CV_BayerGR2RGB,3 );
+	//	cv::imshow("image",image);
+		Helper::convertColor(frame, frame2);
+                cv::imshow("image",frame2.convertToCvMat());
 		
                 cv::waitKey(2);
               i++;
