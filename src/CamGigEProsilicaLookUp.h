@@ -357,6 +357,16 @@ namespace camera
             mode = MODE_RGB;
             depth = 6;
         }
+        else if(str == "Bayer8")
+        {
+            mode = MODE_BAYER_GRBG;
+            depth = 1;
+        }
+	 else if(str == "Bayer16")
+        {
+            mode = MODE_BAYER_GRBG;
+            depth = 2;
+        }
         else
         {
             throw std::runtime_error("Can not convert string to PixelFormat! "
@@ -392,6 +402,20 @@ namespace camera
                         break;
                     case 6:
                         return "Rgb48";
+                        break;
+                    default:
+                        throw std::runtime_error("Choosen color depth value is "
+                                                "not supported by the camera!");
+                }
+                break;
+	     case MODE_BAYER_GRBG:
+                switch(depth)
+                {
+                    case 1:
+                        return "Bayer8";
+                        break;
+                    case 2:
+                        return "Bayer16";
                         break;
                     default:
                         throw std::runtime_error("Choosen color depth value is "

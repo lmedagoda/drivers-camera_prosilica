@@ -16,9 +16,12 @@ int main(int argc, char**argv)
 {
     //init frame
     Frame frame;
+    Frame frame2;
     frame_size_t size(640,480);
-    frame.init(size.width,size.height,8,MODE_RGB,false);
-  
+    frame.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
+    frame2.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
+    cv::Mat image (480, 640, CV_8UC3);
+    
     //init camera
     CamGigEProsilica mycamera;
     CamInterface &camera = mycamera;
@@ -33,6 +36,7 @@ int main(int argc, char**argv)
         //opens a specific camera
         std::cout << "open camera GE1900C \n";
         camera.open2("GE1900C",Master);
+	camera.setFrameSettings(frame);
         //configure the camera to match the frame;
 
   //      camera.setFrameSettings(frame);
@@ -44,17 +48,22 @@ int main(int argc, char**argv)
 
         //display 100 frames
         int i=0;
+	cv::namedWindow("image",CV_WINDOW_AUTOSIZE);
         while(i<100)
         {
             if (camera.isFrameAvailable())
             {
                 camera >> frame;
-                cv::imshow("image",frame.convertToCvMat());
+		//cv::cvtColor(frame.convertToCvMat(), image, CV_BayerGR2RGB,3 );#
+		//cv::imshow("image",image);
+		Helper::convertColor(frame, frame2,MODE_RGB);
+                cv::imshow("image",frame2.convertToCvMat());
+		
                 cv::waitKey(2);
-                i++;
+              i++;
             }
             else
-               usleep(1000);
+               usleep(100);
         }
     }
     catch(std::runtime_error e)

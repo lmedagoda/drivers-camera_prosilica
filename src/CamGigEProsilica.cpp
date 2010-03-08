@@ -189,8 +189,10 @@ namespace camera
         frame_queue_.push_back(frame);
        
 	//configure the camera to auto mode
-	setAttrib(enum_attrib::ExposureModeToAuto);
-	setAttrib(enum_attrib::FrameStartTriggerModeToFreerun);
+	setAttrib(enum_attrib::ExposureModeToManual);
+	setAttrib(int_attrib::ExposureValue,5000);
+	setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
+	setAttrib(double_attrib::FrameRate,10);
 	setAttrib(enum_attrib::GainModeToAuto);
         return true;
     }
