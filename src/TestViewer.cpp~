@@ -7,10 +7,7 @@
 
 using namespace camera;
 
-struct tes
-{
-  char text[64];
-};
+#include <stdio.h>
 
 int main(int argc, char**argv)
 {
@@ -18,14 +15,14 @@ int main(int argc, char**argv)
     Frame frame;
     Frame frame2;
     frame_size_t size(640,480);
-    frame.init(size.width,size.height,8,MODE_BAYER_BGGR,false);
+    frame.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
     frame2.init(size.width,size.height,8,MODE_RGB,false);
     cv::Mat image (480, 640, CV_8UC3);
     
     //init camera
     CamGigEProsilica mycamera;
     CamInterface &camera = mycamera;
-
+    
     //find and display all cameras
    // std::vector<CamInfo> cam_infos;
    // camera.listCameras(cam_infos);
@@ -48,7 +45,7 @@ int main(int argc, char**argv)
 
         //display 100 frames
         int i=0;
-	cv::namedWindow("image",CV_WINDOW_AUTOSIZE);
+	cv::namedWindow("image",0);
         while(i<100)
         {
             if (camera.isFrameAvailable())
@@ -58,8 +55,9 @@ int main(int argc, char**argv)
 	//	cv::imshow("image",image);
 		Helper::convertColor(frame, frame2);
                 cv::imshow("image",frame2.convertToCvMat());
-		
                 cv::waitKey(2);
+		if(frame.getStatus() == STATUS_INVALID)
+		  std::cout << "invalid\n";
               i++;
             }
             else

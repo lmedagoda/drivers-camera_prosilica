@@ -187,13 +187,6 @@ namespace camera
         //store at least one frame in frame_queue_
         ProFrame* frame = new ProFrame(frame_size_in_byte_);
         frame_queue_.push_back(frame);
-       
-	//configure the camera to auto mode
-	setAttrib(enum_attrib::ExposureModeToManual);
-	setAttrib(int_attrib::ExposureValue,5000);
-	setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
-	setAttrib(double_attrib::FrameRate,10);
-	setAttrib(enum_attrib::GainModeToAuto);
         return true;
     }
     
@@ -306,10 +299,11 @@ namespace camera
         //swap buffers
         pframe->swap(frame);
         frame.attributes.clear();
-	if(pframe->frame.Status != ePvErrSuccess) 
-	  frame.setAttribute("invalid","");
+	if(pframe->frame.Status == ePvErrSuccess) 
+	  frame.setStatus(STATUS_VALID);
+	else
+	  frame.setStatus(STATUS_INVALID);
    
-	//frame.setAttribute<int>("test",233);
         // there is no way to check by the api
         // if Acquistion hast stopped automatically
         switch(act_grab_mode_)

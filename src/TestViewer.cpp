@@ -7,10 +7,7 @@
 
 using namespace camera;
 
-struct tes
-{
-  char text[64];
-};
+#include <stdio.h>
 
 int main(int argc, char**argv)
 {
@@ -25,7 +22,7 @@ int main(int argc, char**argv)
     //init camera
     CamGigEProsilica mycamera;
     CamInterface &camera = mycamera;
-
+    
     //find and display all cameras
    // std::vector<CamInfo> cam_infos;
    // camera.listCameras(cam_infos);
@@ -58,8 +55,9 @@ int main(int argc, char**argv)
 	//	cv::imshow("image",image);
 		Helper::convertColor(frame, frame2);
                 cv::imshow("image",frame2.convertToCvMat());
-		
                 cv::waitKey(2);
+		if(frame.getStatus() == STATUS_INVALID)
+		  std::cout << "invalid\n";
               i++;
             }
             else
