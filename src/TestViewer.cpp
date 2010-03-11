@@ -33,12 +33,16 @@ int main(int argc, char**argv)
         //opens a specific camera
         std::cout << "open camera GE1900C \n";
         camera.open2("GE1900C",Master);
+	
+	//sets binning to 1 otherwise high resolution can not be set
+	camera.setAttrib(int_attrib::BinningX,1);
+	camera.setAttrib(int_attrib::BinningY,1);
+	
+	camera.setAttrib(double_attrib::FrameRate,10);
+	camera.setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
+	
 	camera.setFrameSettings(frame);
         //configure the camera to match the frame;
-
-  //      camera.setFrameSettings(frame);
-   //     camera.setAttrib(double_attrib::FrameRate,10);
-   //     camera.setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
 
         //start capturing (buffer size is set to 10 frames)
         camera.grab(Continuously,10);

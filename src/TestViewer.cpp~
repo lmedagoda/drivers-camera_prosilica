@@ -15,7 +15,7 @@ int main(int argc, char**argv)
     Frame frame;
     Frame frame2;
     frame_size_t size(640,480);
-    frame.init(size.width,size.height,8,MODE_BAYER_GRBG,false);
+    frame.init(size.width,size.height,8,MODE_BAYER_GBRG,false);
     frame2.init(size.width,size.height,8,MODE_RGB,false);
     cv::Mat image (480, 640, CV_8UC3);
     
@@ -33,6 +33,14 @@ int main(int argc, char**argv)
         //opens a specific camera
         std::cout << "open camera GE1900C \n";
         camera.open2("GE1900C",Master);
+	
+	//sets binning to 1 otherwise high resolution can not be set
+	camera.setAttrib(int_attrib::BinningX,3);
+	camera.setAttrib(int_attrib::BinningY,3);
+	
+	camera.setAttrib(double_attrib::FrameRate,10);
+	camera.setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
+	
 	camera.setFrameSettings(frame);
         //configure the camera to match the frame;
 
@@ -45,7 +53,7 @@ int main(int argc, char**argv)
 
         //display 100 frames
         int i=0;
-	cv::namedWindow("image",0);
+	cv::namedWindow("image",CV_WINDOW_AUTOSIZE);
         while(i<100)
         {
             if (camera.isFrameAvailable())

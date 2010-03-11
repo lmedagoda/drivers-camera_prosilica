@@ -6,7 +6,7 @@
  */
 
 #include "CamGigEProsilica.h"
-#include <iostream>
+#include <sstream>
 #include "CamGigEProsilicaLookUp.h"
 
 //maximal number of cameras connected to the pc
@@ -487,11 +487,14 @@ namespace camera
         result+=PvAttrUint32Set(camera_handle_,"Height",size.height);
 
         if(result != 0)
-        {
-            throw std::runtime_error("Can not change camera attributes. "
-                                     "Are you in Master Mode?");
-        }
-
+	{
+	  std::stringstream ss1;
+	  std::stringstream ss2;
+	  ss1 << size.width;
+	  ss2 << size.height;
+	  throw std::runtime_error("Can not set camera attribute width="+ss1.str()+
+				   ", height="+ss2.str()+ " or format=" + pixel_format);
+	}
         //resize buffered frames if frames have the wrong size
         if(resize_frames)
         {
@@ -597,9 +600,13 @@ namespace camera
         result = PvAttrFloat32Set( camera_handle_,indent.c_str(),
                                   (tPvFloat32)value);
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute!");
+	{
+           std::stringstream ss;  
+	   ss << value;
+	   throw std::runtime_error("Can not set attribute "+ indent +
+					      " to " +ss.str());
+	}
         return true;
-
     }
 
     bool CamGigEProsilica::setAttrib(const enum_attrib::CamAttrib attrib)
@@ -613,7 +620,7 @@ namespace camera
         attribToStr(attrib, indent,value);
         result = PvAttrEnumSet (camera_handle_, indent.c_str(), value.c_str());
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute!");
+            throw std::runtime_error("Can not set attribute " + indent + " to " + value);
         return true;
     }
 
@@ -628,7 +635,8 @@ namespace camera
         attribToStr(attrib, indent);
         result = PvAttrStringSet(camera_handle_, indent.c_str(), string.c_str());
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute!");
+            throw std::runtime_error("Can not set attribute "  + 
+						      indent + " to " + string);
         return true;
     }
 
@@ -722,7 +730,7 @@ namespace camera
          tPvUint32 value;
          tPvErr result = PvAttrUint32Get(camera_handle_,indent.c_str(),&value);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute!");
+              throw std::runtime_error("Can not get attribute " +  indent);
          return value;
      }
 
@@ -736,7 +744,7 @@ namespace camera
          tPvFloat32 value;
          tPvErr result = PvAttrFloat32Get(camera_handle_,indent.c_str(),&value);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute!");
+              throw std::runtime_error("Can not get attribute " +  indent);
          return value;
      }
 
@@ -753,7 +761,7 @@ namespace camera
                                          indent.c_str(),
                                          value,64,&lengh);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute!");
+              throw std::runtime_error("Can not get attribute " +  indent);
          return std::string(value,std::min(64,(int)lengh));
      }
 
@@ -771,7 +779,7 @@ namespace camera
         result = PvAttrEnumGet (camera_handle_, indent.c_str(),
                  buffer,64,&length);
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute!");
+            throw std::runtime_error("Can not get attribute " +  indent);
 
         if(std::string(buffer,std::min((int)length,64))==value)
             return true;
@@ -784,7 +792,7 @@ namespace camera
             throw std::runtime_error("No camera is open!");
          tPvErr result =PvCommandRun(camera_handle_,"FrameStartTriggerSoftware");
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can trigger frame! Are you in "
+              throw std::runtime_error("Can not trigger frame! Are you in "
                       "Software FrameStartTriggerMode?");
          return true;
      }
@@ -806,7 +814,7 @@ namespace camera
         result+=PvAttrUint32Get(camera_handle_,"Width",&width);
         result+=PvAttrUint32Get(camera_handle_,"Height",&height);
         if(result)
-            throw std::runtime_error("Can not read camera attributes!");
+            throw std::runtime_error("Can not read camera attributes width, height and format!");
         size.height = height;
         size.width = width;
 
