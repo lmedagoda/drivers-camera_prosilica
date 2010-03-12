@@ -116,7 +116,7 @@ namespace camera
                 accessflag = ePvAccessMaster;
                 break;
             default:
-                throw std::runtime_error("GigEProsilica does not understand the"
+                throw std::runtime_error("GigEProsilica does not understand "
                                          "the given access mode!");
         }
 
@@ -125,7 +125,7 @@ namespace camera
         switch(result)
         {
             case ePvErrAccessDenied:
-                throw std::runtime_error("Camera could not be opened in the"
+                throw std::runtime_error("Camera could not be opened in the "
                         "requested access mode, because another application is"
                         " using the camera!");
                 break;
@@ -150,35 +150,34 @@ namespace camera
 
             if(iresult != 0)
                 throw std::runtime_error("Could not set initial camera settings.");
-
-            //start capturing
-            result = PvCaptureStart(camera_handle_);
-            switch(result)
-            {
-                case ePvErrUnplugged:
-                    throw std::runtime_error("Can not start the image capture "
-                                             "stream. Camrea was unplugged!");
-                    break;
-                case ePvErrResources:
-                    throw std::runtime_error("Can not start the image capture "
-                                             "stream. Required system resources"
-                                             " were not available.");
-                case ePvErrBandwidth:
-                    throw std::runtime_error("Can not start the image capture "
-                                             "stream. Insufficient bandwidth.");
-                    break;
-                case ePvErrAccessDenied:
-                     throw std::runtime_error("Can not start the image capture "
-                                             "stream. Access denied.");
-                    break;
-                case ePvErrSuccess:
-                    break;
-                default:
-                    throw std::runtime_error("Can not start the image capture "
-                                             "stream.");
-            }
         }
-
+	
+	//start capturing
+	result = PvCaptureStart(camera_handle_);
+	switch(result)
+	{
+	    case ePvErrUnplugged:
+		  throw std::runtime_error("Can not start the image capture "
+					    "stream. Camrea was unplugged!");
+		  break;
+	    case ePvErrResources:
+		  throw std::runtime_error("Can not start the image capture "
+					    "stream. Required system resources"
+					    " were not available.");
+	    case ePvErrBandwidth:
+		  throw std::runtime_error("Can not start the image capture "
+					    "stream. Insufficient bandwidth.");
+		  break;
+	    case ePvErrAccessDenied:
+		    throw std::runtime_error("Can not start the image capture "
+					    "stream. Access denied.");
+		  break;
+	    case ePvErrSuccess:
+		  break;
+	    default:
+		  throw std::runtime_error("Can not start the image capture "
+					    "stream.");
+	}
         //reads the actual frame settings of the camera
         getFrameSettings(image_size_,image_mode_,image_color_depth_);
         frame_size_in_byte_ = image_size_.width *
@@ -209,12 +208,14 @@ namespace camera
             else
                 return true;
         }
-          
+	
+	int result = 0;
         switch(mode)
         {
             case Stop:
             {
-                PvCommandRun(camera_handle_,"AcquistionStop");
+                if(access_mode_ != Monitor)
+		  result = PvCommandRun(camera_handle_,"AcquistionStop");
                  //all queued frames have to be cleared
                 PvCaptureQueueClear(camera_handle_);
                 //requeue all frames
@@ -225,8 +226,11 @@ namespace camera
             }
             case SingleFrame:
                 prepareQueueForGrabbing(1);
-                PvAttrEnumSet(camera_handle_,"AcquisitionMode","SingleFrame");
-                PvCommandRun(camera_handle_,"AcquisitionStart");
+		if(access_mode_ != Monitor)
+		{
+		  result = PvAttrEnumSet(camera_handle_,"AcquisitionMode","SingleFrame");
+		  result += PvCommandRun(camera_handle_,"AcquisitionStart");
+		}
                 break;
 
             case MultiFrame:
@@ -234,19 +238,27 @@ namespace camera
 
             case Continuously:
                 prepareQueueForGrabbing(buffer_len);
-                PvAttrEnumSet(camera_handle_,"AcquisitionMode","Continuous");
-                PvCommandRun(camera_handle_,"AcquisitionStart");
-                break;
-
+		if(access_mode_ != Monitor)
+		{
+		  result = PvAttrEnumSet(camera_handle_,"AcquisitionMode","Continuous");
+		  result += PvCommandRun(camera_handle_,"AcquisitionStart");
+		  
+		}
+		break;
             default:
                 throw std::runtime_error("The grab mode is not supported by"
                                          " the camera!");
         }
-
-        act_grab_mode_ = mode;
+        if(result != 0)
+	{
+	  if(access_mode_ == Monitor)
+	    throw std::runtime_error("Can not start grabbing! Maybe the master is not started yet.");
+	  else
+	    throw std::runtime_error("Can not start grabbing!");
+	}
+	act_grab_mode_ = mode;
         return true;
     }
-
 
     bool CamGigEProsilica::isFrameAvailable()
     {
@@ -583,8 +595,13 @@ namespace camera
         std::string indent;
         attribToStr(attrib, indent);
         result = PvAttrUint32Set( camera_handle_, indent.c_str(), value);
-        if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute!");
+	if (result != ePvErrSuccess)
+	{
+           std::stringstream ss;  
+	   ss << value;
+	   throw std::runtime_error("Can not set attribute "+ indent +
+					      " to " +ss.str());
+	}
         return true;
     }
 

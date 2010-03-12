@@ -68,7 +68,6 @@ namespace camera
                 string1 = "GainMode";
                 string2 = "Auto";
                 break;
-		
             default:
                throw std::runtime_error("Attribute is not supported by the "
                        "camera. Call isAttribAvail first!");
