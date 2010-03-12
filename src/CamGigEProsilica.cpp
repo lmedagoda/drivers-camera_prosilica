@@ -215,14 +215,10 @@ namespace camera
             case Stop:
             {
                 if(access_mode_ != Monitor)
-		  result = PvCommandRun(camera_handle_,"AcquistionStop");
-                 //all queued frames have to be cleared
-                PvCaptureQueueClear(camera_handle_);
-                //requeue all frames
-                std::list<ProFrame *>::iterator _iter = frame_queue_.begin();
-                for(;_iter!= frame_queue_.end(); _iter++)
-                    queueFrame(*_iter);
-                break;
+		   PvCommandRun(camera_handle_,"AcquisitionStop");
+		act_grab_mode_ = mode;
+		//all queued frames have to be cleared
+                result += PvCaptureQueueClear(camera_handle_);	
             }
             case SingleFrame:
                 prepareQueueForGrabbing(1);
@@ -231,9 +227,11 @@ namespace camera
 		  result = PvAttrEnumSet(camera_handle_,"AcquisitionMode","SingleFrame");
 		  result += PvCommandRun(camera_handle_,"AcquisitionStart");
 		}
+		act_grab_mode_ = mode;
                 break;
 
             case MultiFrame:
+	        act_grab_mode_ = mode;
                 break;
 
             case Continuously:
@@ -244,19 +242,14 @@ namespace camera
 		  result += PvCommandRun(camera_handle_,"AcquisitionStart");
 		  
 		}
+		act_grab_mode_ = mode;
 		break;
             default:
                 throw std::runtime_error("The grab mode is not supported by"
                                          " the camera!");
         }
         if(result != 0)
-	{
-	  if(access_mode_ == Monitor)
-	    throw std::runtime_error("Can not start grabbing! Maybe the master is not started yet.");
-	  else
-	    throw std::runtime_error("Can not start grabbing!");
-	}
-	act_grab_mode_ = mode;
+	    throw std::runtime_error("Can not start/stop grabbing!");
         return true;
     }
 
