@@ -11,9 +11,10 @@ using namespace camera;
 
 int main(int argc, char**argv)
 {
-    //init frame
+  //init frame
     Frame frame;
-    Frame frame2;
+    Frame frame2; 
+    
     frame_size_t size(640,480);
     frame.init(size.width,size.height,8,MODE_BAYER_GBRG,false);
     frame2.init(size.width,size.height,8,MODE_RGB,false);

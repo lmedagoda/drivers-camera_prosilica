@@ -28,7 +28,7 @@ namespace camera
         
         inline void swap(Frame &other)
         {
-            if(frame.ImageBufferSize != other.image.size())
+            if(data.size() != other.image.size())
                  throw std::runtime_error("Frame size mismatch. "
                                           " Can not swap data.");
             other.image.swap(data);

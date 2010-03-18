@@ -37,6 +37,7 @@ namespace camera
         //initialize api
         camera_handle_ = NULL;
         ++instance_count_;
+	
         if(instance_count_ == 1)
         {
             tPvErr err = PvInitialize();
@@ -51,13 +52,13 @@ namespace camera
 
     CamGigEProsilica::~CamGigEProsilica()
     {
-        if(isOpen())
+       if(isOpen())
             close();
         
-        instance_count_--;
+        --instance_count_;
         if(instance_count_ == 0)    //last object deinitializes the
         {                           //api
-            PvUnInitialize();
+	    PvUnInitialize();
         }
     }
 
@@ -121,7 +122,6 @@ namespace camera
         }
 
         tPvErr result = PvCameraOpen(cam.unique_id,accessflag,&camera_handle_);
-       
         switch(result)
         {
             case ePvErrAccessDenied:
@@ -129,11 +129,18 @@ namespace camera
                         "requested access mode, because another application is"
                         " using the camera!");
                 break;
-           case ePvErrNotFound:
+            case ePvErrNotFound:
                 throw std::runtime_error("Camera could not be opened, "
                         "because it can not be found. Maybe it was unplugged.");
                 break;
-
+	    case ePvErrInternalFault:
+		 throw std::runtime_error("Camera could not be opened. "
+                        "Unexpected fault in PvApi or driver. Are you trying to open "
+			"the same camera from one process twice?");
+	    case ePvErrSuccess:
+	   	break;
+	    default:
+		throw std::runtime_error("Camera could not be opened. Unexpected error.");
         }
         
         //do not change attributes if in monitor mode
@@ -174,6 +181,8 @@ namespace camera
 		  break;
 	    case ePvErrSuccess:
 		  break;
+	    case ePvErrBadHandle:
+		  throw std::runtime_error("Bad camera handle. Please contact the developer team.");
 	    default:
 		  throw std::runtime_error("Can not start the image capture "
 					    "stream.");
@@ -215,10 +224,11 @@ namespace camera
             case Stop:
             {
                 if(access_mode_ != Monitor)
-		   PvCommandRun(camera_handle_,"AcquisitionStop");
-		act_grab_mode_ = mode;
-		//all queued frames have to be cleared
+		  PvCommandRun(camera_handle_,"AcquisitionStop");
+ 		act_grab_mode_ = mode;
+ 		//all queued frames have to be cleared
                 result += PvCaptureQueueClear(camera_handle_);	
+	        break;
             }
             case SingleFrame:
                 prepareQueueForGrabbing(1);
@@ -345,21 +355,34 @@ namespace camera
     {
         if(isOpen())
         {
-            if(act_grab_mode_ != Stop)
-                PvCommandRun(camera_handle_,"AcquisitionAbort");
+            int result = 0;
+	    if(act_grab_mode_ != Stop && access_mode_ != Monitor)
+	    {
+	      result = PvCommandRun(camera_handle_,"AcquisitionAbort");
+	    }
+	   
+	    if(result)
+	      throw std::runtime_error("error can not delete queue");
            
             act_grab_mode_ = Stop;
             PvCaptureQueueClear(camera_handle_);
             PvCaptureEnd(camera_handle_);
-            PvCameraClose(camera_handle_);
-
+            PvCameraClose(camera_handle_);	
+	    
              //delete queue
             while(!frame_queue_.empty())
             {
                 ProFrame *frame = frame_queue_.back();
-                delete frame;
-                frame_queue_.pop_back();
-            }
+		if(!isFrameQueued(frame))
+		{
+		  delete frame;
+		  frame_queue_.pop_back();
+		}
+		else
+		{
+		  throw std::runtime_error("error can not delete queue");
+		}
+            }     
             camera_handle_= NULL;
         }
         return true;

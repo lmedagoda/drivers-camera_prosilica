@@ -11,9 +11,21 @@ using namespace camera;
 
 int main(int argc, char**argv)
 {
-    //init frame
+    std::string test("123456");
+    std::stringstream ss;
+    int result;
+    //save 100 000 strings
+    for(int i=0; i < 100000000;i++)
+    {
+      ss << test;
+      ss << result;
+    }
+    return 0;
+  
+  //init frame
     Frame frame;
-    Frame frame2;
+    Frame frame2; 
+    
     frame_size_t size(640,480);
     frame.init(size.width,size.height,8,MODE_BAYER_GBRG,false);
     frame2.init(size.width,size.height,8,MODE_RGB,false);
@@ -46,6 +58,7 @@ int main(int argc, char**argv)
 
         //start capturing (buffer size is set to 10 frames)
         camera.grab(Continuously,10);
+
 
         //display 100 frames
         int i=0;
