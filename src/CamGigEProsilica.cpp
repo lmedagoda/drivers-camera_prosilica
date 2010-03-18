@@ -24,6 +24,7 @@ namespace camera
     int CamGigEProsilica::instance_count_ = 0;
 
     CamGigEProsilica::CamGigEProsilica()
+    : pcallback_function_(NULL), pass_through_pointer_(NULL)
     {
         //versions check
         unsigned long major;
@@ -96,6 +97,23 @@ namespace camera
         return ((int)num_cameras+num_cameras2);
     }
     
+    bool CamGigEProsilica::setCallbackFcn(void (*pcallback_function)(const void *p),void *p)
+    {
+      if(!pcallback_function)
+	throw std::runtime_error ("You can not set the callback function to null!!! "
+				  "Otherwise CamGigEProsilica::callUserCallbackFcn "
+				  "would not be thread safe.");
+      pcallback_function_ = pcallback_function;
+      pass_through_pointer_ = p;
+      return true;
+    }
+    
+    //this function is thread safe as long as pcallback_function_ is not set
+    //to NULL
+    void CamGigEProsilica::callUserCallbackFcn()const
+    {
+       pcallback_function_(pass_through_pointer_);		
+    }
     
     bool CamGigEProsilica::open(const CamInfo &cam,const AccessMode mode)
     {
@@ -195,6 +213,7 @@ namespace camera
         //store at least one frame in frame_queue_
         ProFrame* frame = new ProFrame(frame_size_in_byte_);
         frame_queue_.push_back(frame);
+	queueFrame(frame);
         return true;
     }
     
@@ -577,8 +596,19 @@ namespace camera
         //1 --> frame is not done
         //faster than PvCaptureWaitForFrameDone
         frame->frame.AncillaryBufferSize = 1;
-        tPvErr result = PvCaptureQueueFrame(camera_handle_,
+       
+        tPvErr result; 
+	if(pcallback_function_)
+	{
+	  frame->frame.Context[0] = this;
+	  result = PvCaptureQueueFrame(camera_handle_,
+                                            &frame->frame,callBack2);
+	}
+        else
+	{
+	  result = PvCaptureQueueFrame(camera_handle_,
                                             &frame->frame,callBack);
+	}
         if(result!= ePvErrSuccess)
         {
             frame->frame.AncillaryBufferSize = 0;
@@ -599,6 +629,20 @@ namespace camera
        //1 --> frame is not done
        //faster than PvCaptureWaitForFrameDone
         frame->AncillaryBufferSize = 0;     //indicates that frame is done
+    }
+    
+     //called by the api if frame is done
+    void CamGigEProsilica::callBack2(tPvFrame * frame)
+    {
+       //using AncillaryBufferSize to indicate if frame is done
+       //0 --> frame is done
+       //1 --> frame is not done
+       //faster than PvCaptureWaitForFrameDone
+       frame->AncillaryBufferSize = 0;     //indicates that frame is done
+       const CamGigEProsilica *p = (CamGigEProsilica *)frame->Context[0];
+       
+       //be carefull CamGigEProsilica is not thread safe!!!
+       p->callUserCallbackFcn();
     }
 
     bool CamGigEProsilica::setAttrib(const int_attrib::CamAttrib attrib,

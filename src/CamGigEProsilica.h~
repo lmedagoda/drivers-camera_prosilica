@@ -28,7 +28,7 @@ namespace camera
         
         inline void swap(Frame &other)
         {
-            if(frame.data.size() != other.image.size())
+            if(data.size() != other.image.size())
                  throw std::runtime_error("Frame size mismatch. "
                                           " Can not swap data.");
             other.image.swap(data);
@@ -59,6 +59,8 @@ namespace camera
         std::list<ProFrame*> frame_queue_;
         int frame_size_in_byte_;
         AccessMode access_mode_;
+	void (*pcallback_function_)(const void* p);
+	void *pass_through_pointer_;
 
     public:
         CamGigEProsilica();
@@ -97,7 +99,10 @@ namespace camera
         bool getFrameSettings(frame_size_t &size,frame_mode_t &mode,uint8_t &color_depth);
 
         bool triggerFrame();
-
+	
+	bool setCallbackFcn(void (*pcallback_function)(const void* p),void *p);
+	void callUserCallbackFcn();
+	
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo
@@ -107,6 +112,7 @@ namespace camera
         inline bool isFrameQueued(const ProFrame* frame);
         inline bool queueFrame(ProFrame* frame);
         static void callBack(tPvFrame * frame);
+	static void callBack2(tPvFrame * frame);
     };
 }
 
