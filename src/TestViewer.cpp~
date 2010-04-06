@@ -1,81 +1,63 @@
 
 #include <iostream>
-#include <highgui.h>
-#include <cv.h>
-#include "CamGigEProsilica.h"
-#include "camera_interface/CamInfoUtils.h"
+#include <highgui.h>				//opencv
+#include <cv.h>					//opencv
+#include "CamGigEProsilica.h"			//camera implementation
+#include "camera_interface/CamInfoUtils.h"	//helper for displaying infos
 
 using namespace camera;
 
-#include <stdio.h>
-
 int main(int argc, char**argv)
 {
-    std::string test("123456");
-    std::stringstream ss;
-    int result;
-    //save 100 000 strings
-    for(int i=0; i < 100000000;i++)
-    {
-      ss << test;
-      ss << result;
-    }
-    return 0;
-  
-  //init frame
-    Frame frame;
-    Frame frame2; 
-    
-    frame_size_t size(640,480);
-    frame.init(size.width,size.height,8,MODE_BAYER_GBRG,false);
-    frame2.init(size.width,size.height,8,MODE_RGB,false);
-    cv::Mat image (480, 640, CV_8UC3);
+    //init frame
+    //width = 640 ; height = 360; color depth = 8 Bit; Color Mode = RGB
+    Frame frame(640,360,8,MODE_RGB);
+ 
+    //set interface to Prosilica GigE camera
+    CamGigEProsilica prosilica_gige;
+    CamInterface &camera = prosilica_gige;
 
-    //init camera
-    CamGigEProsilica mycamera;
-    CamInterface &camera = mycamera;
-
-    //find and display all cameras
-    // std::vector<CamInfo> cam_infos;
-    // camera.listCameras(cam_infos);
-    // showCamInfos(cam_infos);
+    //find and display all available cameras
+    std::vector<CamInfo> cam_infos;
+    camera.listCameras(cam_infos);
+    showCamInfos(cam_infos);
 
     try
     {
         //opens a specific camera
         std::cout << "open camera GE1900C \n";
-        camera.open2("GE1900C",Monitor);
+        camera.open2("GE1900C",Master);
+	
+	//configure the camera to match the frame settings;
+        camera.setFrameSettings(frame);
 
-        //sets binning to 1 otherwise high resolution can not be set
-        //camera.setAttrib(int_attrib::BinningX,1);
-        //camera.setAttrib(int_attrib::BinningY,1);
+        //set binning to 3
+        camera.setAttrib(int_attrib::BinningX,3);
+        camera.setAttrib(int_attrib::BinningY,3);
 
-        //camera.setAttrib(double_attrib::FrameRate,10);
-        //camera.setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
+	//set frame rate to 10 and use fixed trigger mode
+        camera.setAttrib(double_attrib::FrameRate,10);
+        camera.setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
 
-        camera.setFrameToCameraFrameSettings(frame);
-        //configure the camera to match the frame;
-
-        //start capturing (buffer size is set to 10 frames)
-        camera.grab(Continuously,10);
-
-
+        //start capturing (buffer size is set to 4 frames)
+        camera.grab(Continuously,4);
+	
         //display 100 frames
         int i=0;
-        cv::namedWindow("image",CV_WINDOW_AUTOSIZE);
         while (i<100)
         {
-            if (camera.isFrameAvailable())
+            
+	    if (camera.isFrameAvailable())
             {
-                camera >> frame;
-                //	cv::cvtColor(frame.convertToCvMat(), image, CV_BayerGR2RGB,3 );
-                //	cv::imshow("image",image);
-                Helper::convertColor(frame, frame2);
-                cv::imshow("image",frame2.convertToCvMat());
-                cv::waitKey(2);
-                if (frame.getStatus() == STATUS_INVALID)
-                    std::cout << "invalid\n";
-                i++;
+              //retrieve frame  
+	      camera >> frame;	
+              //display frame if frame is valid
+	      if (frame.getStatus() != STATUS_INVALID)
+		 cv::imshow("image",frame.convertToCvMat());
+	      else
+                std::cout << "invalid\n";
+	      cv::waitKey(2);
+              i++;
             }
             else
                 usleep(100);
@@ -88,7 +70,6 @@ int main(int argc, char**argv)
 
     //close camera
     camera.close();
-
     return 0;
 }
 

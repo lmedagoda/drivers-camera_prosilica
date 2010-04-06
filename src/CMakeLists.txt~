@@ -10,6 +10,7 @@ install(TARGETS ${PROJECT_NAME}
 SET(TestViewer TestViewer)
 SET(module_name ${TestViewer})
 add_executable(${TestViewer} TestViewer.cpp)   
+add_executable(${TestViewers} TestViewer2.cpp)  
 target_link_libraries(${TestViewer} cv highgui camera_prosilica_gige)
-install(TARGETS ${TestViewer_NAME} RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/test)
+install(TARGETS ${TestViewer} RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/test)
 

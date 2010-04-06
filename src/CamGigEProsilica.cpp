@@ -269,7 +269,6 @@ namespace camera
 		{
 		  result = PvAttrEnumSet(camera_handle_,"AcquisitionMode","Continuous");
 		  result += PvCommandRun(camera_handle_,"AcquisitionStart");
-		  
 		}
 		act_grab_mode_ = mode;
 		break;
@@ -498,6 +497,7 @@ namespace camera
         //requeue all other frames
          std::list<ProFrame *>::iterator _iter = frame_queue_.begin();
          for(;_iter!= frame_queue_.end(); _iter++)
+	   if(!isFrameQueued(*_iter))
               queueFrame(*_iter);
 
         //add frames if the queue is too short
