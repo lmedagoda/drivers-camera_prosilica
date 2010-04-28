@@ -336,7 +336,11 @@ namespace camera
 	  frame.setStatus(STATUS_VALID);
 	else
 	  frame.setStatus(STATUS_INVALID);
-   
+	
+	//Rolling frame counter. For GigE Vision cameras, this
+	//corresponds to the block number, which rolls from 1 to 0xFFFF
+        frame.setAttribute<uint16_t>("FrameCount",pframe->frame.FrameCount);
+	
         // there is no way to check by the api
         // if Acquistion hast stopped automatically
         switch(act_grab_mode_)

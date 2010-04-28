@@ -101,7 +101,7 @@ namespace camera
         bool triggerFrame();
 	
 	bool setCallbackFcn(void (*pcallback_function)(const void* p),void *p);
-	void callUserCallbackFcn();
+	void callUserCallbackFcn()const;
 	
     private:
         //helpers
