@@ -61,6 +61,7 @@ namespace camera
         AccessMode access_mode_;
 	void (*pcallback_function_)(const void* p);
 	void *pass_through_pointer_;
+	double timestamp_factor;
 
     public:
         CamGigEProsilica();

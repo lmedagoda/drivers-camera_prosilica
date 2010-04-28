@@ -214,6 +214,10 @@ namespace camera
         ProFrame* frame = new ProFrame(frame_size_in_byte_);
         frame_queue_.push_back(frame);
 	queueFrame(frame);
+	
+	//get timestamp_factor to convert the camera timestamp to micro seconds
+	timestamp_factor = pow(10,6)/getAttrib(int_attrib::TimeStampFrequency);
+
         return true;
     }
     
@@ -340,6 +344,10 @@ namespace camera
 	//Rolling frame counter. For GigE Vision cameras, this
 	//corresponds to the block number, which rolls from 1 to 0xFFFF
         frame.setAttribute<uint16_t>("FrameCount",pframe->frame.FrameCount);
+	
+	//setting timestamp --> this is not offset or jitter compensated 
+	frame.setAttribute<uint64_t>("TimeStamp",((((uint64_t)pframe->frame.TimestampHi)<<32)+pframe->frame.TimestampLo)*timestamp_factor);
+	frame.time = base::Time::now();
 	
         // there is no way to check by the api
         // if Acquistion hast stopped automatically
