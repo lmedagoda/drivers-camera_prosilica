@@ -68,9 +68,25 @@ namespace camera
                 string1 = "GainMode";
                 string2 = "Auto";
                 break;
+	    case enum_attrib::WhitebalModeToAuto:
+                string1 = "WhitebalMode";
+                string2 = "Auto";
+                break;
+	    case enum_attrib::WhitebalModeToManual:
+                string1 = "WhitebalMode";
+                string2 = "Manual";
+                break;
+	    case enum_attrib::WhitebalModeToAutoOnce:
+                string1 = "WhitebalMode";
+                string2 = "AutoOnce";
+                break;
             default:
-               throw std::runtime_error("Attribute is not supported by the "
-                       "camera. Call isAttribAvail first!");
+	    {
+	       std::stringstream strstr;
+	       strstr << "Enum Attribute "<< attrib << "  is not supported by the "
+	              << "camera. Call isAttribAvail first!";
+               throw std::runtime_error(strstr.str());
+	    }
         }
     }
 
@@ -105,9 +121,13 @@ namespace camera
             case str_attrib::StatFilterVersion:
                 string = "StatFilterVersion";
                 break;
-            default:
-               throw std::runtime_error("Attribute is not supported by the "
-                       "camera. Call isAttribAvail first!");
+	    default:
+	    {
+	       std::stringstream strstr;
+	       strstr << "String Attribute "<< attrib << "  is not supported by the "
+	              << "camera. Call isAttribAvail first!";
+               throw std::runtime_error(strstr.str());
+	    }
         }
     }
 
@@ -122,8 +142,12 @@ namespace camera
                 string = "StatFrameRate";
                 break;
             default:
-               throw std::runtime_error("Attribute is not supported by the "
-                       "camera. Call isAttribAvail first!");
+	    {
+	       std::stringstream strstr;
+	       strstr << "Double Attribute "<< attrib << "  is not supported by the "
+	              << "camera. Call isAttribAvail first!";
+               throw std::runtime_error(strstr.str());
+	    }
         }
     }
     
@@ -327,8 +351,12 @@ namespace camera
                 string = "StatPacketsResent";
                 break;
             default:
-               throw std::runtime_error("Attribute is not supported by the "
-                       "camera. Call isAttribAvail first!");
+	    {
+	       std::stringstream strstr;
+	       strstr << "Int Attribute "<< attrib << "  is not supported by the "
+	              << "camera. Call isAttribAvail first!";
+               throw std::runtime_error(strstr.str());
+	    }
         }
     }
 
