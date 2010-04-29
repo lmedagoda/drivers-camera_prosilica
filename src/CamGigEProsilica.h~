@@ -21,9 +21,12 @@ namespace camera
         std::vector<uint8_t> data;
     public:
         tPvFrame frame;
+	base::Time timestamp_received; 
+	
         ProFrame( int frame_size_in_byte)
         {
             resize(frame_size_in_byte);
+	    
         }
         
         inline void swap(Frame &other)
@@ -33,6 +36,16 @@ namespace camera
                                           " Can not swap data.");
             other.image.swap(data);
             frame.ImageBuffer = &data[0];
+	    
+	    other.attributes.clear();
+	    if(frame.Status == ePvErrSuccess) 
+	      other.setStatus(STATUS_VALID);
+	    else
+	      other.setStatus(STATUS_INVALID);
+	
+	    //Rolling frame counter. For GigE Vision cameras, this
+	    //corresponds to the block number, which rolls from 1 to 0xFFFF
+	    other.setAttribute<uint16_t>("FrameCount",frame.FrameCount);
         }
 
         inline void resize( int frame_size_in_byte)
@@ -41,6 +54,8 @@ namespace camera
             frame.ImageBuffer = &data[0];
             frame.ImageBufferSize = frame_size_in_byte;
             frame.AncillaryBuffer     = NULL;
+	    frame.Context[0] = &timestamp_received;
+	    // frame.Context[1] is used for user callback
 
            //using AncillaryBufferSize to indicate if frame is done
            //0 --> frame is done
@@ -61,6 +76,9 @@ namespace camera
         AccessMode access_mode_;
 	void (*pcallback_function_)(const void* p);
 	void *pass_through_pointer_;
+	double timestamp_factor;
+	base::Time timestamp_offset_camera_system; 	//in micro seconds
+								
 
     public:
         CamGigEProsilica();
@@ -102,6 +120,9 @@ namespace camera
 	
 	bool setCallbackFcn(void (*pcallback_function)(const void* p),void *p);
 	void callUserCallbackFcn()const;
+        void synchronizeWithSystemTime(uint32_t time_interval);
+        void saveConfiguration(uint8_t index);
+        void loadConfiguration(uint8_t index);
 	
     private:
         //helpers
@@ -113,6 +134,9 @@ namespace camera
         inline bool queueFrame(ProFrame* frame);
         static void callBack(tPvFrame * frame);
 	static void callBack2(tPvFrame * frame);
+	
+	void checkCameraStatus()const;
+	void setConfigFileIndex(uint8_t index);
     };
 }
 

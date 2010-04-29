@@ -80,6 +80,26 @@ namespace camera
                 string1 = "WhitebalMode";
                 string2 = "AutoOnce";
                 break;
+	    case enum_attrib::ConfigFileIndex1:
+                string1 = "ConfigFileIndex";
+                string2 = "1";
+                break;
+	    case enum_attrib::ConfigFileIndex2:
+                string1 = "ConfigFileIndex";
+                string2 = "2";
+                break;
+	    case enum_attrib::ConfigFileIndex3:
+                string1 = "ConfigFileIndex";
+                string2 = "3";
+                break;
+	    case enum_attrib::ConfigFileIndex4:
+                string1 = "ConfigFileIndex";
+                string2 = "4";
+                break;
+	    case enum_attrib::ConfigFileIndexFactory:
+                string1 = "ConfigFileIndex";
+                string2 = "Factory";
+                break;
             default:
 	    {
 	       std::stringstream strstr;
@@ -88,9 +108,7 @@ namespace camera
                throw std::runtime_error(strstr.str());
 	    }
         }
-    }WhitebalModeToManual,
-	    WhitebalModeToAuto,
-	    WhitebalModeToAutoOnce
+    }
 
     inline static void attribToStr(str_attrib::CamAttrib attrib,std::string &string)
     {

@@ -80,6 +80,26 @@ namespace camera
                 string1 = "WhitebalMode";
                 string2 = "AutoOnce";
                 break;
+	    case enum_attrib::ConfigFileIndexTo1:
+                string1 = "ConfigFileIndex";
+                string2 = "1";
+                break;
+	    case enum_attrib::ConfigFileIndexTo2:
+                string1 = "ConfigFileIndex";
+                string2 = "2";
+                break;
+	    case enum_attrib::ConfigFileIndexTo3:
+                string1 = "ConfigFileIndex";
+                string2 = "3";
+                break;
+	    case enum_attrib::ConfigFileIndexTo4:
+                string1 = "ConfigFileIndex";
+                string2 = "4";
+                break;
+	    case enum_attrib::ConfigFileIndexToFactory:
+                string1 = "ConfigFileIndex";
+                string2 = "Factory";
+                break;
             default:
 	    {
 	       std::stringstream strstr;

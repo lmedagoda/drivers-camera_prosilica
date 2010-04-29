@@ -8,6 +8,9 @@
 #include "CamGigEProsilica.h"
 #include <sstream>
 #include "CamGigEProsilicaLookUp.h"
+#include <sys/types.h>
+#include <limits.h>
+#include <stdlib.h>
 
 //maximal number of cameras connected to the pc
 //increase the value if you have more cameras connected
@@ -24,7 +27,7 @@ namespace camera
     int CamGigEProsilica::instance_count_ = 0;
 
     CamGigEProsilica::CamGigEProsilica()
-    : pcallback_function_(NULL), pass_through_pointer_(NULL)
+    : pcallback_function_(NULL), pass_through_pointer_(NULL),timestamp_offset_camera_system(0)
     {
         //versions check
         unsigned long major;
@@ -297,7 +300,6 @@ namespace camera
         //keep only the newest frame
         //requeue all other frames
         ProFrame *frame = NULL;
-
         int i;
         int isize = frame_queue_.size()-1;
         for(i = 0; i < isize &&
@@ -333,21 +335,17 @@ namespace camera
         //result = PvCaptureWaitForFrameDone
           //                        (camera_handle_,&pframe->frame,timeout);
 
-        //swap buffers
+        //swap buffers and copy attributes
         pframe->swap(frame);
-        frame.attributes.clear();
-	if(pframe->frame.Status == ePvErrSuccess) 
-	  frame.setStatus(STATUS_VALID);
+	
+	//setting timestamp
+	uint64_t cameratime = ((((uint64_t)pframe->frame.TimestampHi)<<32)+pframe->frame.TimestampLo)*timestamp_factor;
+	frame.setAttribute<uint64_t>("CameraTimeStamp",cameratime);
+	frame.setAttribute<uint64_t>("ReceivedTimeStamp",pframe->timestamp_received.toMicroseconds());
+	if(timestamp_offset_camera_system)
+	  frame.time = base::Time::fromMicroseconds(cameratime + timestamp_offset_camera_system);
 	else
-	  frame.setStatus(STATUS_INVALID);
-	
-	//Rolling frame counter. For GigE Vision cameras, this
-	//corresponds to the block number, which rolls from 1 to 0xFFFF
-        frame.setAttribute<uint16_t>("FrameCount",pframe->frame.FrameCount);
-	
-	//setting timestamp --> this is not offset or jitter compensated 
-	frame.setAttribute<uint64_t>("TimeStamp",((((uint64_t)pframe->frame.TimestampHi)<<32)+pframe->frame.TimestampLo)*timestamp_factor);
-	frame.time = base::Time::now();
+	  frame.time = pframe->timestamp_received;	//not compensated
 	
         // there is no way to check by the api
         // if Acquistion hast stopped automatically
@@ -612,7 +610,7 @@ namespace camera
         tPvErr result; 
 	if(pcallback_function_)
 	{
-	  frame->frame.Context[0] = this;
+	  frame->frame.Context[1] = this;
 	  result = PvCaptureQueueFrame(camera_handle_,
                                             &frame->frame,callBack2);
 	}
@@ -636,6 +634,9 @@ namespace camera
     //called by the api if frame is done
     void CamGigEProsilica::callBack(tPvFrame * frame)
     {
+        //set received timestamp
+       *((base::Time*)frame->Context[0]) = base::Time::now(); 
+      
        //using AncillaryBufferSize to indicate if frame is done
        //0 --> frame is done
        //1 --> frame is not done
@@ -646,13 +647,16 @@ namespace camera
      //called by the api if frame is done
     void CamGigEProsilica::callBack2(tPvFrame * frame)
     {
+       //set received timestamp
+       *((base::Time*)frame->Context[0]) = base::Time::now();
+    
        //using AncillaryBufferSize to indicate if frame is done
        //0 --> frame is done
        //1 --> frame is not done
        //faster than PvCaptureWaitForFrameDone
-       frame->AncillaryBufferSize = 0;     //indicates that frame is done
-       const CamGigEProsilica *p = (CamGigEProsilica *)frame->Context[0];
        
+       frame->AncillaryBufferSize = 0;     //indicates that frame is done
+       const CamGigEProsilica *p = (CamGigEProsilica *)frame->Context[1];
        //be carefull CamGigEProsilica is not thread safe!!!
        p->callUserCallbackFcn();
     }
@@ -660,9 +664,7 @@ namespace camera
     bool CamGigEProsilica::setAttrib(const int_attrib::CamAttrib attrib,
                                      const int value)
     {
-        if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+        checkCameraStatus();
         tPvErr result;
         std::string indent;
         attribToStr(attrib, indent);
@@ -680,9 +682,7 @@ namespace camera
      bool CamGigEProsilica::setAttrib(const double_attrib::CamAttrib attrib,
                                      const double value)
     {
-        if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+        checkCameraStatus();
         tPvErr result;
         std::string indent;
         attribToStr(attrib, indent);
@@ -700,9 +700,7 @@ namespace camera
 
     bool CamGigEProsilica::setAttrib(const enum_attrib::CamAttrib attrib)
     {
-        if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+        checkCameraStatus();
         tPvErr result;
         std::string indent;
         std::string value;
@@ -716,9 +714,7 @@ namespace camera
     bool CamGigEProsilica::setAttrib(const str_attrib::CamAttrib attrib,
                                      const std::string &string)
     {
-        if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+        checkCameraStatus();
         tPvErr result;
         std::string indent;
         attribToStr(attrib, indent);
@@ -731,9 +727,7 @@ namespace camera
 
      bool CamGigEProsilica::isAttribAvail(const int_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          try
          {
@@ -751,9 +745,7 @@ namespace camera
 
      bool CamGigEProsilica::isAttribAvail(const double_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          try
          {
@@ -771,9 +763,7 @@ namespace camera
 
      bool CamGigEProsilica::isAttribAvail(const str_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          try
          {
@@ -791,9 +781,7 @@ namespace camera
 
      bool CamGigEProsilica::isAttribAvail(const enum_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent,value;
          try
          {
@@ -811,9 +799,7 @@ namespace camera
      
      int CamGigEProsilica::getAttrib(const int_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          attribToStr(attrib, indent);
          tPvUint32 value;
@@ -825,9 +811,7 @@ namespace camera
 
      double CamGigEProsilica::getAttrib(const double_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          attribToStr(attrib, indent);
          tPvFloat32 value;
@@ -839,9 +823,7 @@ namespace camera
 
      std::string CamGigEProsilica::getAttrib(const str_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+         checkCameraStatus();
          std::string indent;
          attribToStr(attrib, indent);
          char value[64];
@@ -856,9 +838,7 @@ namespace camera
 
      bool CamGigEProsilica::isAttribSet(const enum_attrib::CamAttrib attrib)
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
-
+        checkCameraStatus();
         tPvErr result;
         std::string indent;
         std::string value;
@@ -877,8 +857,7 @@ namespace camera
 
      bool CamGigEProsilica::triggerFrame()
      {
-         if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
+         checkCameraStatus();
          tPvErr result =PvCommandRun(camera_handle_,"FrameStartTriggerSoftware");
          if(result != ePvErrSuccess)
               throw std::runtime_error("Can not trigger frame! Are you in "
@@ -890,8 +869,7 @@ namespace camera
                                              frame_mode_t &mode,
                                              uint8_t &color_depth)
      {
-        if (!camera_handle_)
-            throw std::runtime_error("No camera is open!");
+        checkCameraStatus();
 
         char pixel_format[32];
         unsigned long int ilen;
@@ -910,5 +888,118 @@ namespace camera
         std::string str(pixel_format,std::min(32,(int)ilen));
         convertStrToPixelFormat(str, mode, color_depth);
         return true;
+     }
+     
+     void CamGigEProsilica::saveConfiguration(uint8_t index)
+     {
+	setConfigFileIndex(index);
+	tPvErr result = PvCommandRun(camera_handle_,"ConfigFileSave");
+	if(result != ePvErrSuccess)
+              throw std::runtime_error("CamGigEProsilica::saveConfiguration: can not save configuration.");
+     }
+  
+     void CamGigEProsilica::loadConfiguration(uint8_t index)
+     {
+	setConfigFileIndex(index);
+	tPvErr result = PvCommandRun(camera_handle_,"ConfigFileLoad");
+	if(result != ePvErrSuccess)
+              throw std::runtime_error("CamGigEProsilica::loadConfiguration: can not load configuration.");
+	
+	frame_size_t size;
+	frame_mode_t mode;
+	uint8_t color_depth;
+	
+	//this must be called to set the internal buffer to the right size
+	getFrameSettings(size,mode,color_depth);
+	setFrameSettings(size,mode,color_depth,true);
+     }
+     
+     void CamGigEProsilica::setConfigFileIndex(uint8_t index)
+     {
+	checkCameraStatus();
+	if(access_mode_ == Monitor)
+	  throw std::runtime_error("CamGigEProsilica::setConfigFileIndex: Can not set configuration file index. Camera is in Monitor mode.");
+
+        switch(index)
+	{
+	  case 0:  //factory defaults can not be overwritten
+	    setAttrib(enum_attrib::ConfigFileIndexToFactory);
+	    break;
+	  case 1:
+	    setAttrib(enum_attrib::ConfigFileIndexTo1);
+	    break;
+	  case 2:
+	    setAttrib(enum_attrib::ConfigFileIndexTo2);
+	    break;
+	  case 3:
+	    setAttrib(enum_attrib::ConfigFileIndexTo3);
+	    break;
+	  case 4: // this is used internal. Do not save configurations here
+	    setAttrib(enum_attrib::ConfigFileIndexTo4);
+	    break;
+	  default:
+	  {
+	    std::stringstream strstr;
+	    strstr << "CamGigEProsilica::setConfigFileIndex: File index " << index
+		   << " is invalid. Allowed values are 1 - 3. "
+		   << "(4 is used internal, 0 = factory defaults which can not be overwritten).";
+	    throw std::runtime_error(strstr.str());
+	  }
+	}
+     }
+     
+     //no jitter compensation
+     void CamGigEProsilica::synchronizeWithSystemTime(uint32_t time_interval)
+     {
+	checkCameraStatus();
+        if(access_mode_ != Monitor)
+	{
+	  if(act_grab_mode_!= Stop)
+	    throw std::runtime_error("Stop grabbing before calling synchronizeWithSystemTime.");
+	  
+	  //save camera settings
+	  saveConfiguration(4);
+	  
+	  //load defaul settings
+	  loadConfiguration(0);
+	  setAttrib(double_attrib::FrameRate,20);
+	  setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
+	}  
+	
+	//read n frames to determine the time offset
+	timestamp_offset_camera_system =0;
+	Frame frame;
+	setFrameToCameraFrameSettings(frame);
+	grab(Continuously,4);
+	base::Time time = base::Time::now();
+	uint64_t time_offset = LONG_LONG_MAX;
+	uint64_t temp =0;
+	int i =0;
+	for(;(base::Time::now()-time).toMicroseconds() < time_interval;++i)
+	{
+	  if(isFrameAvailable())
+	  {
+	    retrieveFrame(frame,100);
+	    temp = frame.getAttribute<uint64_t>("ReceivedTimeStamp")-frame.getAttribute<uint64_t>("CameraTimeStamp");
+	    if(time_offset > temp)
+	      time_offset = temp;
+	  }
+	  else
+	    usleep(1000);   //wait 1ms
+	}
+	grab(Stop,0);
+	timestamp_offset_camera_system = time_offset;
+	
+	if(access_mode_ != Monitor)
+	{
+	  //load old configuration
+	  loadConfiguration(4);
+	}
+     }
+     
+     void CamGigEProsilica::checkCameraStatus()const
+     {
+	if (!isOpen())
+           throw std::runtime_error("No camera is open!");
      }
 }
