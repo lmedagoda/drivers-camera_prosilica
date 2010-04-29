@@ -77,7 +77,7 @@ namespace camera
 	void (*pcallback_function_)(const void* p);
 	void *pass_through_pointer_;
 	double timestamp_factor;
-	base::Time timestamp_offset_camera_system; 	//in micro seconds
+	uint64_t timestamp_offset_camera_system; 	//in micro seconds
 								
 
     public:
@@ -123,6 +123,9 @@ namespace camera
         void synchronizeWithSystemTime(uint32_t time_interval);
         void saveConfiguration(uint8_t index);
         void loadConfiguration(uint8_t index);
+	
+	void getRange(const double_attrib::CamAttrib attrib,double &min,double &max);
+	void getRange(const int_attrib::CamAttrib attrib,int &min,int &max);
 	
     private:
         //helpers

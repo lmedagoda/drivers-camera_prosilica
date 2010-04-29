@@ -124,6 +124,9 @@ namespace camera
         void saveConfiguration(uint8_t index);
         void loadConfiguration(uint8_t index);
 	
+	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
+	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
+	
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo

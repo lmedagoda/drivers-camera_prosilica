@@ -854,6 +854,32 @@ namespace camera
             return true;
         return false;
      }
+     
+    void CamGigEProsilica::getRange(const double_attrib::CamAttrib attrib,double &dmin,double &mdax)
+    {
+      checkCameraStatus();
+      std::string indent;
+      attribToStr(attrib, indent);
+      tPvFloat32 value_min,value_max;
+      tPvErr result = PvAttrRangeFloat32(camera_handle_,indent.c_str(),&value_min,&value_max);
+      if(result != ePvErrSuccess)
+	  throw std::runtime_error("Can not get range of attribute " +  indent);
+      dmin = value_min;
+      dmax = value_max;
+    }
+	
+    void CamGigEProsilica::getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax)
+    {
+      checkCameraStatus();
+      std::string indent;
+      attribToStr(attrib, indent);
+      tPvUint32 value_min,value_max;
+      tPvErr result = PvAttrRangeUint32(camera_handle_,indent.c_str(),&value_min,&value_max);
+      if(result != ePvErrSuccess)
+	  throw std::runtime_error("Can not get range of attribute " +  indent);
+      imin = value_min;
+      imax = value_max;
+    }
 
      bool CamGigEProsilica::triggerFrame()
      {
@@ -962,7 +988,10 @@ namespace camera
 	  
 	  //load defaul settings
 	  loadConfiguration(0);
-	  setAttrib(double_attrib::FrameRate,20);
+	  
+	  double min_value, max_value;
+	  getRange(double_attrib::FrameRate,min_value,max_value);
+	  setAttrib(double_attrib::FrameRate,min(20,max_value));
 	  setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
 	}  
 	
