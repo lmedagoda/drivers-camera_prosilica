@@ -855,7 +855,7 @@ namespace camera
         return false;
      }
      
-    void CamGigEProsilica::getRange(const double_attrib::CamAttrib attrib,double &dmin,double &mdax)
+    void CamGigEProsilica::getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax)
     {
       checkCameraStatus();
       std::string indent;
@@ -991,7 +991,7 @@ namespace camera
 	  
 	  double min_value, max_value;
 	  getRange(double_attrib::FrameRate,min_value,max_value);
-	  setAttrib(double_attrib::FrameRate,min(20,max_value));
+	  setAttrib(double_attrib::FrameRate,std::min(20.0,max_value));
 	  setAttrib(enum_attrib::FrameStartTriggerModeToFixedRate);
 	}  
 	
