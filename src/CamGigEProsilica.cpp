@@ -334,19 +334,18 @@ namespace camera
         //can not use api function. During heavy cpu load callback fcn is
         //called to late
         //result = PvCaptureWaitForFrameDone
-          //                        (camera_handle_,&pframe->frame,timeout);
+        //                            (camera_handle_,&pframe->frame,timeout);
 
         //swap buffers and copy attributes
         pframe->swap(frame);
 	
-	//setting timestamp
+	//setting extra timestamp information
 	uint64_t cameratime = ((((uint64_t)pframe->frame.TimestampHi)<<32)+pframe->frame.TimestampLo)*timestamp_factor;
 	frame.setAttribute<uint64_t>("CameraTimeStamp",cameratime);
-	frame.setAttribute<uint64_t>("ReceivedTimeStamp",pframe->timestamp_received.toMicroseconds());
+	
+	//set the camera timestamp in unix time if the offset is known
 	if(timestamp_offset_camera_system)
 	  frame.time = base::Time::fromMicroseconds(cameratime + timestamp_offset_camera_system);
-	else
-	  frame.time = pframe->timestamp_received;	//not compensated
 	
         // there is no way to check by the api
         // if Acquistion hast stopped automatically

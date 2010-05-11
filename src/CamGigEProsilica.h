@@ -46,6 +46,8 @@ namespace camera
 	    //Rolling frame counter. For GigE Vision cameras, this
 	    //corresponds to the block number, which rolls from 1 to 0xFFFF
 	    other.setAttribute<uint16_t>("FrameCount",frame.FrameCount);
+	    other.time = timestamp_received;
+	    other.received_time = timestamp_received;
         }
 
         inline void resize( int frame_size_in_byte)

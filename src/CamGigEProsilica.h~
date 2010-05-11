@@ -29,7 +29,7 @@ namespace camera
 	    
         }
         
-        inline void swap(Frame &other)
+        inline void swap(base::samples::frame::Frame &other)
         {
             if(data.size() != other.image.size())
                  throw std::runtime_error("Frame size mismatch. "
@@ -39,9 +39,9 @@ namespace camera
 	    
 	    other.attributes.clear();
 	    if(frame.Status == ePvErrSuccess) 
-	      other.setStatus(STATUS_VALID);
+	      other.setStatus(base::samples::frame::STATUS_VALID);
 	    else
-	      other.setStatus(STATUS_INVALID);
+	      other.setStatus(base::samples::frame::STATUS_INVALID);
 	
 	    //Rolling frame counter. For GigE Vision cameras, this
 	    //corresponds to the block number, which rolls from 1 to 0xFFFF
@@ -91,11 +91,11 @@ namespace camera
         bool close();
 
         bool grab(const GrabMode mode, const int buffer_len);
-        bool retrieveFrame(Frame &frame,const int timeout);
-        bool setFrameSettings(const frame_size_t size,
-                                      const frame_mode_t mode,
-                                      const  uint8_t color_depth,
-                                      const bool resize_frames);
+        bool retrieveFrame(base::samples::frame::Frame &frame,const int timeout);
+        bool setFrameSettings(const base::samples::frame::frame_size_t size,
+                              const base::samples::frame::frame_mode_t mode,
+                              const  uint8_t color_depth,
+                              const bool resize_frames);
         bool isFrameAvailable();
         int skipFrames();
 
@@ -114,7 +114,9 @@ namespace camera
         std::string getAttrib(const str_attrib::CamAttrib attrib);
         bool isAttribSet(const enum_attrib::CamAttrib attrib);
 
-        bool getFrameSettings(frame_size_t &size,frame_mode_t &mode,uint8_t &color_depth);
+        bool getFrameSettings(base::samples::frame::frame_size_t &size,
+			      base::samples::frame::frame_mode_t &mode,
+			      uint8_t &color_depth);
 
         bool triggerFrame();
 	
