@@ -22,6 +22,7 @@ const int kFrameBufferCount = 3;        //number of buffered frames
 const unsigned long kMinMinorVersion = 20;
 const unsigned long kMinMajorVersion = 1;
 
+using namespace base::samples::frame;
 namespace camera
 {
     int CamGigEProsilica::instance_count_ = 0;

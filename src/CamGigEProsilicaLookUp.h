@@ -381,37 +381,37 @@ namespace camera
     }
 
     inline static void convertStrToPixelFormat(const std::string &str,
-                                               frame_mode_t &mode,
+                                               base::samples::frame::frame_mode_t &mode,
                                                uint8_t &depth)
     {
         if(str == "Mono8")
         {
-            mode = MODE_GRAYSCALE;
+            mode = base::samples::frame::MODE_GRAYSCALE;
             depth = 1;
         }
         else if(str == "Mono16")
         {
-            mode = MODE_GRAYSCALE;
+            mode = base::samples::frame::MODE_GRAYSCALE;
             depth = 2;
         }
         else if(str == "Rgb24")
         {
-            mode = MODE_RGB;
+            mode = base::samples::frame::MODE_RGB;
             depth = 3;
         }
         else if(str == "Rgb48")
         {
-            mode = MODE_RGB;
+            mode = base::samples::frame::MODE_RGB;
             depth = 6;
         }
         else if(str == "Bayer8")
         {
-            mode = MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER_GBRG;
             depth = 1;
         }
 	 else if(str == "Bayer16")
         {
-            mode = MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER_GBRG;
             depth = 2;
         }
         else
@@ -422,12 +422,12 @@ namespace camera
 
     }
 
-    inline static std::string convertPixelFormatToStr(const frame_mode_t mode,
+    inline static std::string convertPixelFormatToStr(const base::samples::frame::frame_mode_t mode,
                                                             const uint8_t depth)
     {
         switch (mode)
         {
-            case MODE_GRAYSCALE:
+            case base::samples::frame::MODE_GRAYSCALE:
                 switch(depth)
                 {
                     case 1:
@@ -441,7 +441,7 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
-             case MODE_RGB:
+             case base::samples::frame::MODE_RGB:
                 switch(depth)
                 {
                     case 3:
@@ -455,7 +455,7 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
-	     case MODE_BAYER_GBRG:
+	     case base::samples::frame::MODE_BAYER_GBRG:
                 switch(depth)
                 {
                     case 1:

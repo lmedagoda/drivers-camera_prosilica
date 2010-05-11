@@ -80,23 +80,23 @@ namespace camera
                 string1 = "WhitebalMode";
                 string2 = "AutoOnce";
                 break;
-	    case enum_attrib::ConfigFileIndex1:
+	    case enum_attrib::ConfigFileIndexTo1:
                 string1 = "ConfigFileIndex";
                 string2 = "1";
                 break;
-	    case enum_attrib::ConfigFileIndex2:
+	    case enum_attrib::ConfigFileIndexTo2:
                 string1 = "ConfigFileIndex";
                 string2 = "2";
                 break;
-	    case enum_attrib::ConfigFileIndex3:
+	    case enum_attrib::ConfigFileIndexTo3:
                 string1 = "ConfigFileIndex";
                 string2 = "3";
                 break;
-	    case enum_attrib::ConfigFileIndex4:
+	    case enum_attrib::ConfigFileIndexTo4:
                 string1 = "ConfigFileIndex";
                 string2 = "4";
                 break;
-	    case enum_attrib::ConfigFileIndexFactory:
+	    case enum_attrib::ConfigFileIndexToFactory:
                 string1 = "ConfigFileIndex";
                 string2 = "Factory";
                 break;
@@ -381,37 +381,37 @@ namespace camera
     }
 
     inline static void convertStrToPixelFormat(const std::string &str,
-                                               frame_mode_t &mode,
+                                               base::samples::frame::frame_mode_t &mode,
                                                uint8_t &depth)
     {
         if(str == "Mono8")
         {
-            mode = MODE_GRAYSCALE;
+            mode = base::samples::frame::MODE_GRAYSCALE;
             depth = 1;
         }
         else if(str == "Mono16")
         {
-            mode = MODE_GRAYSCALE;
+            mode = base::samples::frame::MODE_GRAYSCALE;
             depth = 2;
         }
         else if(str == "Rgb24")
         {
-            mode = MODE_RGB;
+            mode = base::samples::frame::MODE_RGB;
             depth = 3;
         }
         else if(str == "Rgb48")
         {
-            mode = MODE_RGB;
+            mode = base::samples::frame::MODE_RGB;
             depth = 6;
         }
         else if(str == "Bayer8")
         {
-            mode = MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER_GBRG;
             depth = 1;
         }
 	 else if(str == "Bayer16")
         {
-            mode = MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER_GBRG;
             depth = 2;
         }
         else
@@ -427,7 +427,7 @@ namespace camera
     {
         switch (mode)
         {
-            case MODE_GRAYSCALE:
+            case base::samples::frame::MODE_GRAYSCALE:
                 switch(depth)
                 {
                     case 1:
@@ -441,7 +441,7 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
-             case MODE_RGB:
+             case base::samples::frame::MODE_RGB:
                 switch(depth)
                 {
                     case 3:
@@ -455,7 +455,7 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
-	     case MODE_BAYER_GBRG:
+	     case base::samples::frame::MODE_BAYER_GBRG:
                 switch(depth)
                 {
                     case 1:
