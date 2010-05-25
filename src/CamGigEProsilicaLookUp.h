@@ -60,6 +60,10 @@ namespace camera
                 string1 = "ExposureMode";
                 string2 = "AutoOnce";
                 break;
+	    case enum_attrib::ExposureModeToExternal:
+                string1 = "ExposureMode";
+                string2 = "External";
+                break;
 	    case enum_attrib::GainModeToManual:
                 string1 = "GainMode";
                 string2 = "Manual";

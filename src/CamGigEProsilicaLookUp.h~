@@ -100,11 +100,30 @@ namespace camera
                 string1 = "ConfigFileIndex";
                 string2 = "Factory";
                 break;
+	    case enum_attrib::FrameStartTriggerEventToEdgeFalling:
+                string1 = "FrameStartTriggerEvent";
+                string2 = "EdgeFalling";
+                break;
+	    case enum_attrib::FrameStartTriggerEventToEdgeAny:
+                string1 = "FrameStartTriggerEvent";
+                string2 = "EdgeAny";
+                break;
+	    case enum_attrib::FrameStartTriggerEventToEdgeRising:
+                string1 = "FrameStartTriggerEvent";
+                string2 = "EdgeRising";
+                break;
+	    case enum_attrib::FrameStartTriggerEventToLevelHigh:
+                string1 = "FrameStartTriggerEvent";
+                string2 = "LevelHigh";
+                break;
+	    case enum_attrib::FrameStartTriggerEventToLevelLow:
+                string1 = "FrameStartTriggerEvent";
+                string2 = "LevelLow";
+                break;
             default:
 	    {
 	       std::stringstream strstr;
-	       strstr << "Enum Attribute "<< attrib << "  is not supported by the "
-	              << "camera. Call isAttribAvail first!";
+	       strstr << "Enum Attribute "<< attrib << "  is not find in CamGigEProsilicaLookUp.h";
                throw std::runtime_error(strstr.str());
 	    }
         }
