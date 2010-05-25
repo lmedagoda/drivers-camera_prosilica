@@ -422,7 +422,7 @@ namespace camera
 
     }
 
-    inline static std::string convertPixelFormatToStr(const frame_mode_t mode,
+    inline static std::string convertPixelFormatToStr(const base::samples::frame::frame_mode_t mode,
                                                             const uint8_t depth)
     {
         switch (mode)
