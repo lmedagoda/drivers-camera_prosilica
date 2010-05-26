@@ -84,13 +84,14 @@ namespace camera
 
     public:
         CamGigEProsilica();
-        virtual ~CamGigEProsilica();
+        ~CamGigEProsilica();
 
     public:
         int listCameras(std::vector<CamInfo>&cam_infos)const;
         bool open(const CamInfo &cam,const AccessMode mode);
         bool isOpen()const;
         bool close();
+	const CamInfo *getCameraInfo()const;
 
         bool grab(const GrabMode mode, const int buffer_len);
         bool retrieveFrame(base::samples::frame::Frame &frame,const int timeout);
@@ -130,7 +131,6 @@ namespace camera
 	
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
-	
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo

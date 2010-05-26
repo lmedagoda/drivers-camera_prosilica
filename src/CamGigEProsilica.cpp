@@ -119,6 +119,13 @@ namespace camera
        pcallback_function_(pass_through_pointer_);		
     }
     
+    const CamInfo *CamGigEProsilica::getCameraInfo()const
+    {
+	 if(isOpen())
+	   return &cam_info_;
+	 return NULL;
+    };
+    
     bool CamGigEProsilica::open(const CamInfo &cam,const AccessMode mode)
     {
         if(isOpen())

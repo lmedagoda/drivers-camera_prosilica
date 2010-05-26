@@ -46,6 +46,8 @@ namespace camera
 	    //Rolling frame counter. For GigE Vision cameras, this
 	    //corresponds to the block number, which rolls from 1 to 0xFFFF
 	    other.setAttribute<uint16_t>("FrameCount",frame.FrameCount);
+	    other.time = timestamp_received;
+	    other.received_time = timestamp_received;
         }
 
         inline void resize( int frame_size_in_byte)
@@ -128,7 +130,7 @@ namespace camera
 	
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
-	
+	std::string doDiagnose();
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo
