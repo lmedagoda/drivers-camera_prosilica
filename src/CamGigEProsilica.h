@@ -80,10 +80,11 @@ namespace camera
 	void *pass_through_pointer_;
 	double timestamp_factor;
 	uint64_t timestamp_offset_camera_system; 	//in micro seconds
-								
+	
+	const uint32_t max_package_size_t; //max package size of the ethernet packages (mtu) in byte (defaul is 16110)						    
 
     public:
-        CamGigEProsilica();
+        CamGigEProsilica(uint32_t max_package_size = 16110);
         ~CamGigEProsilica();
 
     public:
@@ -131,6 +132,7 @@ namespace camera
 	
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
+	
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo

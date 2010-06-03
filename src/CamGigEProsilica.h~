@@ -80,17 +80,18 @@ namespace camera
 	void *pass_through_pointer_;
 	double timestamp_factor;
 	uint64_t timestamp_offset_camera_system; 	//in micro seconds
-								
+	uint32_t max_package_size; //in byte defaul is 16110							    
 
     public:
         CamGigEProsilica();
-        virtual ~CamGigEProsilica();
+        ~CamGigEProsilica();
 
     public:
         int listCameras(std::vector<CamInfo>&cam_infos)const;
         bool open(const CamInfo &cam,const AccessMode mode);
         bool isOpen()const;
         bool close();
+	const CamInfo *getCameraInfo()const;
 
         bool grab(const GrabMode mode, const int buffer_len);
         bool retrieveFrame(base::samples::frame::Frame &frame,const int timeout);
@@ -130,7 +131,15 @@ namespace camera
 	
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
-	std::string doDiagnose();
+	
+	//sets the max package size of the image
+	//call this function before opening the camera
+	// setAttrib(camera::int_attrib::PacketSize,_package_size);
+	// is not supported because it can not be set after the capturing has started 
+	void setMaxPackageSize(uint32_t package_size)
+	{
+	  max_package_size = package_size;
+	}
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo

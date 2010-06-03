@@ -323,10 +323,7 @@ namespace camera
                 break;
             case int_attrib::Strobe1Duration:
                 string = "Strobe1Duration";
-                break;
-            case int_attrib::PacketSize:
-                string = "PacketSize";
-                break;
+                break;	
             case int_attrib::StreamBytesPerSecond:
                 string = "StreamBytesPerSecond";
                 break;
@@ -393,6 +390,11 @@ namespace camera
             case int_attrib::StatPacketsResent:
                 string = "StatPacketsResent";
                 break;
+   //this is not supported because it can not be set after capturing has started 
+   //use the parameter of the camera constructor to set max_package_size
+   //         case int_attrib::PacketSize:
+   //             string = "PacketSize";
+   //             break;
             default:
 	    {
 	       std::stringstream strstr;

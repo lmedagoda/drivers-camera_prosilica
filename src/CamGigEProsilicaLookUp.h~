@@ -393,9 +393,6 @@ namespace camera
             case int_attrib::StatPacketsResent:
                 string = "StatPacketsResent";
                 break;
-	    case int_attrib::SyncInLevels:
-                string = "SyncInLevels";
-                break;
             default:
 	    {
 	       std::stringstream strstr;

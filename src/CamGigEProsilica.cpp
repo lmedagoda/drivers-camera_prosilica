@@ -27,9 +27,12 @@ namespace camera
 {
     int CamGigEProsilica::instance_count_ = 0;
 
-    CamGigEProsilica::CamGigEProsilica()
-    : pcallback_function_(NULL), pass_through_pointer_(NULL),timestamp_offset_camera_system(0)
+    CamGigEProsilica::CamGigEProsilica(uint32_t max_package_size)
+    : pcallback_function_(NULL), pass_through_pointer_(NULL),timestamp_offset_camera_system(0),max_package_size_t(max_package_size)
     {
+        if (max_package_size_t == 0)
+	  max_package_size = 16110;
+      
         //versions check
         unsigned long major;
         unsigned long minor;
@@ -53,6 +56,7 @@ namespace camera
             sleep(1);   // otherwise a segmentation fault can occure
                         // if someone uses api calls too early
         }
+	max_package_size = 16110; //in byte defaul is 16110	
     }
 
     CamGigEProsilica::~CamGigEProsilica()
@@ -177,7 +181,8 @@ namespace camera
         {
             //can not be set if capturing is started
             //sets the package size to maximum possible
-            int iresult = PvCaptureAdjustPacketSize(camera_handle_,16110);
+            int iresult = PvCaptureAdjustPacketSize(camera_handle_,max_package_size_t);
+	    
             //set multicast
             if(access_mode_ == MasterMulticast)
                 iresult += PvAttrEnumSet(camera_handle_,"MulticastEnable","On");
@@ -679,7 +684,7 @@ namespace camera
 	if (result != ePvErrSuccess)
 	{
            std::stringstream ss;  
-	   ss << value;
+	   ss << value << " Error Code: "<< result;
 	   throw std::runtime_error("Can not set attribute "+ indent +
 					      " to " +ss.str());
 	}
