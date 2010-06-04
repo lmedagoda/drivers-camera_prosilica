@@ -48,6 +48,57 @@ namespace camera
 	    other.setAttribute<uint16_t>("FrameCount",frame.FrameCount);
 	    other.time = timestamp_received;
 	    other.received_time = timestamp_received;
+	    
+	    //check bayer pattern 
+	    switch (frame.BayerPattern)
+	    {
+	      case ePvBayerRGGB:
+		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_RGGB)
+		{
+		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+		    other.frame_mode = base::samples::frame::MODE_BAYER_RGGB;
+		  else
+		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_RGGB but frame has a "
+					     "different format. Use MODE_BAYER if you want to use auto discover.");
+		}
+		break;
+		
+	      case ePvBayerGBRG:
+		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GBRG)
+		{
+		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+		    other.frame_mode = base::samples::frame::MODE_BAYER_GBRG;
+		  else
+		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GBRG but frame has a "
+					     "different format. Use MODE_BAYER if you want to use auto discover.");
+		}
+		break;
+		
+	      case ePvBayerGRBG:
+		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GRBG)
+		{
+		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+		    other.frame_mode = base::samples::frame::MODE_BAYER_GRBG;
+		  else
+		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GRBG but frame has a "
+					     "different format. Use MODE_BAYER if you want to use auto discover.");
+		}
+		break;
+		  
+	      case ePvBayerBGGR:
+		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_BGGR)
+		{
+		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+		    other.frame_mode = base::samples::frame::MODE_BAYER_BGGR;
+		  else
+		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_BGGR but frame has a "
+					     "different format. Use MODE_BAYER if you want to use auto discover.");
+		}
+		break;
+		
+	      default:	//no bayer pattern
+		 other.frame_mode = base::samples::frame::MODE_BAYER_BGGR;
+	    }
         }
 
         inline void resize( int frame_size_in_byte)
@@ -80,10 +131,11 @@ namespace camera
 	void *pass_through_pointer_;
 	double timestamp_factor;
 	uint64_t timestamp_offset_camera_system; 	//in micro seconds
-	uint32_t max_package_size; //in byte defaul is 16110							    
+	
+	const uint32_t max_package_size_t; //max package size of the ethernet packages (mtu) in byte (defaul is 16110)						    
 
     public:
-        CamGigEProsilica();
+        CamGigEProsilica(uint32_t max_package_size = 16110);
         ~CamGigEProsilica();
 
     public:
@@ -132,14 +184,6 @@ namespace camera
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
 	
-	//sets the max package size of the image
-	//call this function before opening the camera
-	// setAttrib(camera::int_attrib::PacketSize,_package_size);
-	// is not supported because it can not be set after the capturing has started 
-	void setMaxPackageSize(uint32_t package_size)
-	{
-	  max_package_size = package_size;
-	}
     private:
         //helpers
         void copy_tPvCameraInfo_To_tCamInfo
