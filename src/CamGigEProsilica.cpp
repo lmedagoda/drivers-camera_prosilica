@@ -384,8 +384,12 @@ namespace camera
 
                 //check if no frames are lost
                 if(queue_empty)
+		{
+		   //reque all frames 
+		   prepareQueueForGrabbing(frame_queue_.size());
                    throw std::runtime_error("Frames lost! Call retrieve"
                         " more often or reduse fps!");
+		}
             }
         }
         return true;
@@ -1043,4 +1047,5 @@ namespace camera
 	if (!isOpen())
            throw std::runtime_error("No camera is open!");
      }
+
 }
