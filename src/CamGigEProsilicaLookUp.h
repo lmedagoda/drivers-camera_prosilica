@@ -10,10 +10,48 @@
 
 #include "camera_interface/CamTypes.h"
 #include <map>
+#include "PvApi.h"
+
+/*ePvErrSuccess       = 0,        // No error
+    ePvErrCameraFault   = 1,        // Unexpected camera fault
+    ePvErrInternalFault = 2,        // Unexpected fault in PvApi or driver
+    ePvErrBadHandle     = 3,        // Camera handle is invalid
+    ePvErrBadParameter  = 4,        // Bad parameter to API call
+    ePvErrBadSequence   = 5,        // Sequence of API calls is incorrect
+    ePvErrNotFound      = 6,        // Camera or attribute not found
+    ePvErrAccessDenied  = 7,        // Camera cannot be opened in the specified mode
+    ePvErrUnplugged     = 8,        // Camera was unplugged
+    ePvErrInvalidSetup  = 9,        // Setup is invalid (an attribute is invalid)
+    ePvErrResources     = 10,       // System/network resources or memory not available
+    ePvErrBandwidth     = 11,       // 1394 bandwidth not available
+    ePvErrQueueFull     = 12,       // Too many frames on queue
+    ePvErrBufferTooSmall= 13,       // Frame buffer is too small
+    ePvErrCancelled     = 14,       // Frame cancelled by user
+    ePvErrDataLost      = 15,       // The data for the frame was lost
+    ePvErrDataMissing   = 16,       // Some data in the frame is missing
+    ePvErrTimeout       = 17,       // Timeout during wait
+    ePvErrOutOfRange    = 18,       // Attribute value is out of the expected range
+    ePvErrWrongType     = 19,       // Attribute is not this type (wrong access function) 
+    ePvErrForbidden     = 20,       // Attribute write forbidden at this time
+    ePvErrUnavailable   = 21,       // Attribute is not available at this time
+    ePvErrFirewall      = 22,       // A firewall is blocking the traffic (Windows only)
+    __ePvErr_force_32   = 0xFFFFFFFF*/
+
 
 namespace camera
 {
-    
+    inline std::string tPvErrToString(tPvErr err)
+    {
+      switch (err)
+      {
+	case ePvErrSuccess:
+	  return "No error";
+      
+      }
+      return "";
+    }
+  
+  
     inline static void attribToStr(enum_attrib::CamAttrib attrib,
                             std::string &string1,
                             std::string &string2)
@@ -431,12 +469,12 @@ namespace camera
         }
         else if(str == "Bayer8")
         {
-            mode = base::samples::frame::MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER;
             depth = 1;
         }
 	 else if(str == "Bayer16")
         {
-            mode = base::samples::frame::MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER;
             depth = 2;
         }
         else
@@ -480,7 +518,11 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
+	     case base::samples::frame::MODE_BAYER:
+	     case base::samples::frame::MODE_BAYER_GRBG:
 	     case base::samples::frame::MODE_BAYER_GBRG:
+	     case base::samples::frame::MODE_BAYER_RGGB:
+	     case base::samples::frame::MODE_BAYER_BGGR:
                 switch(depth)
                 {
                     case 1:
@@ -490,8 +532,11 @@ namespace camera
                         return "Bayer16";
                         break;
                     default:
-                        throw std::runtime_error("Choosen color depth value is "
-                                                "not supported by the camera!");
+		    {
+		      std::stringstream strstr;
+		      strstr << "Choosen color depth "<< depth << " is not supported by the camera!";
+		      throw std::runtime_error(strstr.str());
+		    }
                 }
                 break;
             default:
