@@ -10,10 +10,66 @@
 
 #include "camera_interface/CamTypes.h"
 #include <map>
+#include "PvApi.h"
 
 namespace camera
 {
-    
+    inline std::string tPvErrToString(tPvErr err)
+    {
+      switch (err)
+      {
+	case ePvErrSuccess:
+	  return "No error";
+	case ePvErrCameraFault:
+	  return "Unexpected camera fault";
+	case ePvErrInternalFault:
+	  return "Unexpected fault in PvApi or driver";
+	case ePvErrBadHandle:
+	  return "Camera handle is invalid";
+	case ePvErrBadParameter:
+	  return "Bad parameter to API call";
+	case ePvErrBadSequence:
+	  return "Sequence of API calls is incorrect";
+	case ePvErrNotFound:
+	  return "Camera or attribute not found";
+	case ePvErrAccessDenied:
+	  return "Camera cannot be opened in the specified mode";
+	case ePvErrUnplugged:
+	  return "Camera was unplugged";
+	case ePvErrInvalidSetup:
+	  return "Setup is invalid (an attribute is invalid)";
+	case ePvErrResources:
+	  return "System/network resources or memory not available";
+	case ePvErrBandwidth:
+	  return "1394 bandwidth not available";
+	case ePvErrQueueFull:
+	  return "Too many frames on queue";
+	case ePvErrBufferTooSmall:
+	  return "Frame buffer is too small";
+	case ePvErrCancelled:
+	  return "Frame cancelled by user";
+	case ePvErrDataLost:
+	  return "The data for the frame was lost";
+	case ePvErrDataMissing:
+	  return "Some data in the frame is missing";
+	case ePvErrTimeout:
+	  return "Timeout during wait";
+	case ePvErrOutOfRange:
+	  return "Attribute value is out of the expected range";
+	case ePvErrWrongType:
+	  return "Attribute is not this type (wrong access function) ";
+	case ePvErrForbidden:
+	  return "Attribute write forbidden at this time";
+	case ePvErrUnavailable:
+	  return "Attribute is not available at this time";
+	case ePvErrFirewall:
+	  return "A firewall is blocking the traffic (Windows only)";
+	default
+	  return "unkown camera error";
+      }
+      return "unkown camera error";
+    }
+  
     inline static void attribToStr(enum_attrib::CamAttrib attrib,
                             std::string &string1,
                             std::string &string2)
@@ -323,10 +379,7 @@ namespace camera
                 break;
             case int_attrib::Strobe1Duration:
                 string = "Strobe1Duration";
-                break;
-            case int_attrib::PacketSize:
-                string = "PacketSize";
-                break;
+                break;	
             case int_attrib::StreamBytesPerSecond:
                 string = "StreamBytesPerSecond";
                 break;
@@ -393,6 +446,11 @@ namespace camera
             case int_attrib::StatPacketsResent:
                 string = "StatPacketsResent";
                 break;
+   //this is not supported because it can not be set after capturing has started 
+   //use the parameter of the camera constructor to set max_package_size
+   //         case int_attrib::PacketSize:
+   //             string = "PacketSize";
+   //             break;
             default:
 	    {
 	       std::stringstream strstr;
@@ -429,12 +487,12 @@ namespace camera
         }
         else if(str == "Bayer8")
         {
-            mode = base::samples::frame::MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER;
             depth = 1;
         }
 	 else if(str == "Bayer16")
         {
-            mode = base::samples::frame::MODE_BAYER_GBRG;
+            mode = base::samples::frame::MODE_BAYER;
             depth = 2;
         }
         else
@@ -478,7 +536,11 @@ namespace camera
                                                 "not supported by the camera!");
                 }
                 break;
+	     case base::samples::frame::MODE_BAYER:
+	     case base::samples::frame::MODE_BAYER_GRBG:
 	     case base::samples::frame::MODE_BAYER_GBRG:
+	     case base::samples::frame::MODE_BAYER_RGGB:
+	     case base::samples::frame::MODE_BAYER_BGGR:
                 switch(depth)
                 {
                     case 1:
@@ -488,8 +550,11 @@ namespace camera
                         return "Bayer16";
                         break;
                     default:
-                        throw std::runtime_error("Choosen color depth value is "
-                                                "not supported by the camera!");
+		    {
+		      std::stringstream strstr;
+		      strstr << "Choosen color depth "<< depth << " is not supported by the camera!";
+		      throw std::runtime_error(strstr.str());
+		    }
                 }
                 break;
             default:

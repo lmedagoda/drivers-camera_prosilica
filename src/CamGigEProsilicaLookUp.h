@@ -12,32 +12,6 @@
 #include <map>
 #include "PvApi.h"
 
-/*ePvErrSuccess       = 0,        // No error
-    ePvErrCameraFault   = 1,        // Unexpected camera fault
-    ePvErrInternalFault = 2,        // Unexpected fault in PvApi or driver
-    ePvErrBadHandle     = 3,        // Camera handle is invalid
-    ePvErrBadParameter  = 4,        // Bad parameter to API call
-    ePvErrBadSequence   = 5,        // Sequence of API calls is incorrect
-    ePvErrNotFound      = 6,        // Camera or attribute not found
-    ePvErrAccessDenied  = 7,        // Camera cannot be opened in the specified mode
-    ePvErrUnplugged     = 8,        // Camera was unplugged
-    ePvErrInvalidSetup  = 9,        // Setup is invalid (an attribute is invalid)
-    ePvErrResources     = 10,       // System/network resources or memory not available
-    ePvErrBandwidth     = 11,       // 1394 bandwidth not available
-    ePvErrQueueFull     = 12,       // Too many frames on queue
-    ePvErrBufferTooSmall= 13,       // Frame buffer is too small
-    ePvErrCancelled     = 14,       // Frame cancelled by user
-    ePvErrDataLost      = 15,       // The data for the frame was lost
-    ePvErrDataMissing   = 16,       // Some data in the frame is missing
-    ePvErrTimeout       = 17,       // Timeout during wait
-    ePvErrOutOfRange    = 18,       // Attribute value is out of the expected range
-    ePvErrWrongType     = 19,       // Attribute is not this type (wrong access function) 
-    ePvErrForbidden     = 20,       // Attribute write forbidden at this time
-    ePvErrUnavailable   = 21,       // Attribute is not available at this time
-    ePvErrFirewall      = 22,       // A firewall is blocking the traffic (Windows only)
-    __ePvErr_force_32   = 0xFFFFFFFF*/
-
-
 namespace camera
 {
     inline std::string tPvErrToString(tPvErr err)
@@ -46,11 +20,55 @@ namespace camera
       {
 	case ePvErrSuccess:
 	  return "No error";
-      
+	case ePvErrCameraFault:
+	  return "Unexpected camera fault";
+	case ePvErrInternalFault:
+	  return "Unexpected fault in PvApi or driver";
+	case ePvErrBadHandle:
+	  return "Camera handle is invalid";
+	case ePvErrBadParameter:
+	  return "Bad parameter to API call";
+	case ePvErrBadSequence:
+	  return "Sequence of API calls is incorrect";
+	case ePvErrNotFound:
+	  return "Camera or attribute not found";
+	case ePvErrAccessDenied:
+	  return "Camera cannot be opened in the specified mode";
+	case ePvErrUnplugged:
+	  return "Camera was unplugged";
+	case ePvErrInvalidSetup:
+	  return "Setup is invalid (an attribute is invalid)";
+	case ePvErrResources:
+	  return "System/network resources or memory not available";
+	case ePvErrBandwidth:
+	  return "1394 bandwidth not available";
+	case ePvErrQueueFull:
+	  return "Too many frames on queue";
+	case ePvErrBufferTooSmall:
+	  return "Frame buffer is too small";
+	case ePvErrCancelled:
+	  return "Frame cancelled by user";
+	case ePvErrDataLost:
+	  return "The data for the frame was lost";
+	case ePvErrDataMissing:
+	  return "Some data in the frame is missing";
+	case ePvErrTimeout:
+	  return "Timeout during wait";
+	case ePvErrOutOfRange:
+	  return "Attribute value is out of the expected range";
+	case ePvErrWrongType:
+	  return "Attribute is not this type (wrong access function) ";
+	case ePvErrForbidden:
+	  return "Attribute write forbidden at this time";
+	case ePvErrUnavailable:
+	  return "Attribute is not available at this time";
+	case ePvErrFirewall:
+	  return "A firewall is blocking the traffic (Windows only)";
+	default:
+	  return "unkown camera error";
       }
-      return "";
+      return "unkown camera error";
     }
-  
   
     inline static void attribToStr(enum_attrib::CamAttrib attrib,
                             std::string &string1,

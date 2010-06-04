@@ -52,7 +52,7 @@ namespace camera
             if(err != ePvErrSuccess)
                throw std::runtime_error("Can not initialize GigEProsilica API!"
                                         "\nSome required system resources "
-                                        "are not available.");
+                                        "are not available." + tPvErrToString(err));
             sleep(1);   // otherwise a segmentation fault can occure
                         // if someone uses api calls too early
         }
@@ -638,7 +638,7 @@ namespace camera
             frame->frame.AncillaryBufferSize = 0;
             if(access_mode_ == Monitor)
                 throw std::runtime_error("Cannot queue frame! "
-                        "Maybe Master has not started capturing.");
+                        "Maybe Master has not started capturing. " + tPvErrToString(result));
             else
                 throw std::runtime_error("Cannot queue frame!");
         }
@@ -686,9 +686,9 @@ namespace camera
 	if (result != ePvErrSuccess)
 	{
            std::stringstream ss;  
-	   ss << value << " Error Code: "<< result;
+	   ss << value << " Error Code: "<< result << " ";
 	   throw std::runtime_error("Can not set attribute "+ indent +
-					      " to " +ss.str());
+					      " to " +ss.str() + tPvErrToString(result));
 	}
         return true;
     }
@@ -705,9 +705,9 @@ namespace camera
         if (result != ePvErrSuccess)
 	{
            std::stringstream ss;  
-	   ss << value;
+	   ss << value << " ";
 	   throw std::runtime_error("Can not set attribute "+ indent +
-					      " to " +ss.str());
+					      " to " +ss.str()+ tPvErrToString(result));
 	}
         return true;
     }
@@ -721,7 +721,7 @@ namespace camera
         attribToStr(attrib, indent,value);
         result = PvAttrEnumSet (camera_handle_, indent.c_str(), value.c_str());
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not set attribute " + indent + " to " + value);
+            throw std::runtime_error("Can not set attribute " + indent + " to " + value +" " + tPvErrToString(result));
         return true;
     }
 
@@ -735,7 +735,7 @@ namespace camera
         result = PvAttrStringSet(camera_handle_, indent.c_str(), string.c_str());
         if (result != ePvErrSuccess)
             throw std::runtime_error("Can not set attribute "  + 
-						      indent + " to " + string);
+						      indent + " to " + string + " " + tPvErrToString(result));
         return true;
     }
 
@@ -819,7 +819,7 @@ namespace camera
          tPvUint32 value;
          tPvErr result = PvAttrUint32Get(camera_handle_,indent.c_str(),&value);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute " +  indent);
+              throw std::runtime_error("Can not get attribute " +  indent + " " + tPvErrToString(result));
          return value;
      }
 
@@ -831,7 +831,7 @@ namespace camera
          tPvFloat32 value;
          tPvErr result = PvAttrFloat32Get(camera_handle_,indent.c_str(),&value);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute " +  indent);
+              throw std::runtime_error("Can not get attribute " +  indent+ " " + tPvErrToString(result));
          return value;
      }
 
@@ -846,7 +846,7 @@ namespace camera
                                          indent.c_str(),
                                          value,64,&lengh);
          if(result != ePvErrSuccess)
-              throw std::runtime_error("Can not get attribute " +  indent);
+              throw std::runtime_error("Can not get attribute " +  indent+ " " + tPvErrToString(result));
          return std::string(value,std::min(64,(int)lengh));
      }
 
@@ -862,7 +862,7 @@ namespace camera
         result = PvAttrEnumGet (camera_handle_, indent.c_str(),
                  buffer,64,&length);
         if (result != ePvErrSuccess)
-            throw std::runtime_error("Can not get attribute " +  indent);
+            throw std::runtime_error("Can not get attribute " +  indent+ " " + tPvErrToString(result));
 
         if(std::string(buffer,std::min((int)length,64))==value)
             return true;
@@ -877,7 +877,7 @@ namespace camera
       tPvFloat32 value_min,value_max;
       tPvErr result = PvAttrRangeFloat32(camera_handle_,indent.c_str(),&value_min,&value_max);
       if(result != ePvErrSuccess)
-	  throw std::runtime_error("Can not get range of attribute " +  indent);
+	  throw std::runtime_error("Can not get range of attribute " +  indent + " " + tPvErrToString(result));
       dmin = value_min;
       dmax = value_max;
     }
@@ -890,7 +890,7 @@ namespace camera
       tPvUint32 value_min,value_max;
       tPvErr result = PvAttrRangeUint32(camera_handle_,indent.c_str(),&value_min,&value_max);
       if(result != ePvErrSuccess)
-	  throw std::runtime_error("Can not get range of attribute " +  indent);
+	  throw std::runtime_error("Can not get range of attribute " +  indent + " " + tPvErrToString(result));
       imin = value_min;
       imax = value_max;
     }
