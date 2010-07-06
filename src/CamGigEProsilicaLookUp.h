@@ -180,6 +180,118 @@ namespace camera
                 string1 = "FrameStartTriggerEvent";
                 string2 = "LevelLow";
                 break;
+	    case enum_attrib::SyncOut1ModeToGPO:
+                string1 = "SyncOut1Mode";
+                string2 = "GPO";
+                break;
+	    case enum_attrib::SyncOut1ModeToAcquisitionTriggerReady:
+                string1 = "SyncOut1Mode";
+                string2 = "AcquisitionTriggerReady";
+                break;
+	    case enum_attrib::SyncOut1ModeToFrameTriggerReady:
+                string1 = "SyncOut1Mode";
+                string2 = "FrameTriggerReady";
+                break;
+	    case enum_attrib::SyncOut1ModeToFrameTrigger:
+                string1 = "SyncOut1Mode";
+                string2 = "FrameTrigger";
+                break;
+	    case enum_attrib::SyncOut1ModeToExposing:
+                string1 = "SyncOut1Mode";
+                string2 = "Exposing";
+                break;
+	    case enum_attrib::SyncOut1ModeToFrameReadout:
+                string1 = "SyncOut1Mode";
+                string2 = "FrameReadout";
+                break;	
+	    case enum_attrib::SyncOut1ModeToImaging:
+                string1 = "SyncOut1Mode";
+                string2 = "Imaging";
+                break;
+	    case enum_attrib::SyncOut1ModeToAcquiring:
+                string1 = "SyncOut1Mode";
+                string2 = "Acquiring";
+                break;
+	    case enum_attrib::SyncOut1ModeToSyncIn1:
+                string1 = "SyncOut1Mode";
+                string2 = "SyncIn1";
+                break;
+	    case enum_attrib::SyncOut1ModeToSyncIn2:
+                string1 = "SyncOut1Mode";
+                string2 = "SyncIn2";
+                break;
+	    case enum_attrib::SyncOut1ModeToStrobe1:
+                string1 = "SyncOut1Mode";
+                string2 = "Strobe1";
+                break;
+	    case enum_attrib::SyncOut1ModeToStrobe2:
+                string1 = "SyncOut1Mode";
+                string2 = "Strobe2";
+                break;
+	    case enum_attrib::SyncOut2ModeToGPO:
+                string1 = "SyncOut2Mode";
+                string2 = "GPO";
+                break;
+	    case enum_attrib::SyncOut2ModeToAcquisitionTriggerReady:
+                string1 = "SyncOut2Mode";
+                string2 = "AcquisitionTriggerReady";
+                break;
+	    case enum_attrib::SyncOut2ModeToFrameTriggerReady:
+                string1 = "SyncOut2Mode";
+                string2 = "FrameTriggerReady";
+                break;
+	    case enum_attrib::SyncOut2ModeToFrameTrigger:
+                string1 = "SyncOut2Mode";
+                string2 = "FrameTrigger";
+                break;
+	    case enum_attrib::SyncOut2ModeToExposing:
+                string1 = "SyncOut2Mode";
+                string2 = "Exposing";
+                break;
+	    case enum_attrib::SyncOut2ModeToFrameReadout:
+                string1 = "SyncOut2Mode";
+                string2 = "FrameReadout";
+                break;	
+	    case enum_attrib::SyncOut2ModeToImaging:
+                string1 = "SyncOut2Mode";
+                string2 = "Imaging";
+                break;
+	    case enum_attrib::SyncOut2ModeToAcquiring:
+                string1 = "SyncOut2Mode";
+                string2 = "Acquiring";
+                break;
+	    case enum_attrib::SyncOut2ModeToSyncIn1:
+                string1 = "SyncOut2Mode";
+                string2 = "SyncIn1";
+                break;
+	    case enum_attrib::SyncOut2ModeToSyncIn2:
+                string1 = "SyncOut2Mode";
+                string2 = "SyncIn2";
+                break;
+	    case enum_attrib::SyncOut2ModeToStrobe1:
+                string1 = "SyncOut2Mode";
+                string2 = "Strobe1";
+                break;
+	    case enum_attrib::SyncOut2ModeToStrobe2:
+                string1 = "SyncOut2Mode";
+                string2 = "Strobe2";
+                break;
+	    case enum_attrib::SyncOut1InvertToOn:
+                string1 = "SyncOut1Invert";
+                string2 = "On";
+                break;
+	    case enum_attrib::SyncOut1InvertToOff:
+                string1 = "SyncOut1Invert";
+                string2 = "Off";
+                break;
+	    case enum_attrib::SyncOut2InvertToOn:
+                string1 = "SyncOut2Invert";
+                string2 = "On";
+                break;
+	    case enum_attrib::SyncOut2InvertToOff:
+                string1 = "SyncOut2Invert";
+                string2 = "Off";
+                break;
             default:
 	    {
 	       std::stringstream strstr;
