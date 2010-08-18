@@ -49,55 +49,67 @@ namespace camera
 	    other.time = timestamp_received;
 	    other.received_time = timestamp_received;
 	    
-	    //check bayer pattern 
-	    switch (frame.BayerPattern)
+   	    //std::cerr << "now checking bayer pattern which is = " << frame.BayerPattern << std::endl;
+   	    //std::cerr << "image format = " << frame.Format << std::endl;
+
+	    if(frame.Format > 0) 
 	    {
-	      case ePvBayerRGGB:
-		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_RGGB)
-		{
-		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
-		    other.frame_mode = base::samples::frame::MODE_BAYER_RGGB;
-		  else
-		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_RGGB but frame has a "
-					     "different format. Use MODE_BAYER if you want to use auto discover.");
-		}
-		break;
+
+		    //check bayer pattern 
+		    switch (frame.BayerPattern)
+		    {
+		      case ePvBayerRGGB:
+			if(other.getFrameMode() != base::samples::frame::MODE_BAYER_RGGB)
+			{
+			  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+			    other.frame_mode = base::samples::frame::MODE_BAYER_RGGB;
+			  else
+			    throw std::runtime_error("Bayer Pattern is MODE_BAYER_RGGB but frame has a "
+						     "different format. Use MODE_BAYER if you want to use auto discover.");
+			}
+			break;
 		
-	      case ePvBayerGBRG:
-		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GBRG)
-		{
-		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
-		    other.frame_mode = base::samples::frame::MODE_BAYER_GBRG;
-		  else
-		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GBRG but frame has a "
-					     "different format. Use MODE_BAYER if you want to use auto discover.");
-		}
-		break;
+		      case ePvBayerGBRG:
+			if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GBRG)
+			{
+			  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+			    other.frame_mode = base::samples::frame::MODE_BAYER_GBRG;
+			  else
+			    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GBRG but frame has a "
+						     "different format. Use MODE_BAYER if you want to use auto discover.");
+			}
+			break;
 		
-	      case ePvBayerGRBG:
-		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GRBG)
-		{
-		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
-		    other.frame_mode = base::samples::frame::MODE_BAYER_GRBG;
-		  else
-		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GRBG but frame has a "
-					     "different format. Use MODE_BAYER if you want to use auto discover.");
-		}
-		break;
-		  
-	      case ePvBayerBGGR:
-		if(other.getFrameMode() != base::samples::frame::MODE_BAYER_BGGR)
-		{
-		  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
-		    other.frame_mode = base::samples::frame::MODE_BAYER_BGGR;
-		  else
-		    throw std::runtime_error("Bayer Pattern is MODE_BAYER_BGGR but frame has a "
-					     "different format. Use MODE_BAYER if you want to use auto discover.");
-		}
-		break;
+		      case ePvBayerGRBG:
+			if(other.getFrameMode() != base::samples::frame::MODE_BAYER_GRBG)
+			{
+			  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+			    other.frame_mode = base::samples::frame::MODE_BAYER_GRBG;
+			  else
+			    throw std::runtime_error("Bayer Pattern is MODE_BAYER_GRBG but frame has a "
+						     "different format. Use MODE_BAYER if you want to use auto discover.");
+			}
+			break;
+			  
+		      case ePvBayerBGGR:
+			if(other.getFrameMode() != base::samples::frame::MODE_BAYER_BGGR)
+			{
+			  if(other.getFrameMode() == base::samples::frame::MODE_BAYER)
+			    other.frame_mode = base::samples::frame::MODE_BAYER_BGGR;
+			  else
+			    throw std::runtime_error("Bayer Pattern is MODE_BAYER_BGGR but frame has a "
+						     "different format. Use MODE_BAYER if you want to use auto discover.");
+			}
+			break;
 		
-	      default:	//no bayer pattern
-	      {}
+		      default:	//no bayer pattern
+		      {}
+		    }
+
+	    }
+	    else
+	    {
+		other.frame_mode = base::samples::frame::MODE_GRAYSCALE;
 	    }
         }
 
