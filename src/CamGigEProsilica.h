@@ -8,7 +8,7 @@
 #ifndef _CAMGIGEPROSILICA_H
 #define	_CAMGIGEPROSILICA_H
 
-#include "camera_interface/CamInterface.h"
+#include <camera_interface/CamInterface.h>
 #include "arch.h"
 #include "PvApi.h"
 #include <list>
