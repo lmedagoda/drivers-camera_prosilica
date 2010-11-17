@@ -640,7 +640,7 @@ namespace camera
                 throw std::runtime_error("Cannot queue frame! "
                         "Maybe Master has not started capturing. " + tPvErrToString(result));
             else
-                throw std::runtime_error("Cannot queue frame!");
+                throw std::runtime_error("Cannot queue frame! " + tPvErrToString(result));
         }
         return true;
     }
