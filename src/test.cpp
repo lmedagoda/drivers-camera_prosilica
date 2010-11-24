@@ -19,6 +19,8 @@ int main () {
     cam_infos.pop_back();
     showCamInfos(cam_infos);
     if (cam_infos.size() > 0) {
+      // sleep will not work when using PvApi due to signal handler mess
+      sleep(1000000);
       cam.open(cam_infos[0],Master);
       if (cam.isOpen()) cout << "camera open" << endl;
       cam.close();
