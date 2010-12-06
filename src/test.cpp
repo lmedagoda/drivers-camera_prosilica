@@ -1,41 +1,47 @@
 
-#define _LINUX
-#define _x86
-
 #include "CamGigEProsilica.h"
-#include "camera_interface/CamInfoUtils.h"
 using namespace camera;
 
 #include <iostream>
-#include <vector>
+#include <stdlib.h>
 using namespace std;
 
-int main () {
+int main (int argc, char** argv) {
   try {
+    // todo: adapt if you want to use another default camera
+    char *_uid = "105984";
+    if (argc > 1) {
+      _uid = argv[1];
+    }
+    unsigned long uid = atoi(_uid);
+    if (uid == 0) {
+      cerr << "error! bad uid: '" << _uid << "' interpreted as " << uid << endl;
+      return -1;
+    }
+    
     CamGigEProsilica prosilica;
     CamInterface &cam = prosilica;
-    vector<CamInfo> cam_infos;
-    cout << cam.listCameras(cam_infos) << endl;
-    cam_infos.pop_back();
-    showCamInfos(cam_infos);
-    if (cam_infos.size() > 0) {
-      // sleep will not work when using PvApi due to signal handler mess
-      sleep(1000000);
-      cam.open(cam_infos[0],Master);
-      if (cam.isOpen()) cout << "camera open" << endl;
-      cam.close();
+    if (!prosilica.open2(uid)) {
+      cerr << "could not open camera with uid " << uid << endl;
+      return -1;
     }
+    else {
+      cerr << "camera with uid " << uid << " successfully opened" << endl;
+      cam.close();
+      return 0;
+    }
+
   }
   catch(std::runtime_error &e) {
-    cout << e.what() << endl;
+    cerr << e.what() << endl;
   }
   catch(std::exception &e) {
-    cout << e.what() << endl;
+    cerr << e.what() << endl;
   }
   catch(...) {
-    cout << "wtf?" << endl;
+    cerr << "wtf?" << endl;
   }
-
-  return 0;
+  
+  return -1;
 }
 

@@ -9,7 +9,7 @@ install(TARGETS ${PROJECT_NAME}
 
 #SET(TestViewer TestViewer)
 #SET(module_name ${TestViewer}) 
-add_executable(test_exec test.cpp)  
-target_link_libraries(test_exec camera_prosilica_gige)
-#install(TARGETS ${TestViewer} RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/test)
+add_executable(${PROJECT_NAME}_test test.cpp)  
+target_link_libraries(${PROJECT_NAME}_test camera_prosilica_gige)
+install(TARGETS ${PROJECT_NAME}_test RUNTIME DESTINATION bin)
 
