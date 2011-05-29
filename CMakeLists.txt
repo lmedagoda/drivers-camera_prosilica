@@ -40,10 +40,12 @@ set(PROJECT_DESCRIPTION "Wrapper for Prosilica GigE Cameras")
 ##### Download Prosilica SDK if not present ############################
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
   execute_process(COMMAND mkdir ${PROJECT_SOURCE_DIR}/external)
+endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND wget http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND tar xfvz Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND rm Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
-endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
+endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK)
 
 ##### Specification of build directory #################################
 # Specifies a common place where CMake should put all the executables.
