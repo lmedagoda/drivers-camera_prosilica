@@ -34,8 +34,16 @@ cmake_minimum_required(VERSION 2.6)
 ##### Set Project name and version #####################################
 project(camera_prosilica_gige)
 set(PROJECT_VERSION 1.0)
-set(PROJECT_DESCRIPTION "Dummy project just to show how the infrastructure is working")
+set(PROJECT_DESCRIPTION "Wrapper for Prosilica GigE Cameras")
 ##### End Set Project name and version #################################
+
+##### Download Prosilica SDK if not present ############################
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
+  execute_process(COMMAND mkdir ${PROJECT_SOURCE_DIR}/external)
+  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND wget http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz)
+  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND tar xfvz Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
+  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND rm Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
+endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
 
 ##### Specification of build directory #################################
 # Specifies a common place where CMake should put all the executables.
@@ -46,11 +54,11 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # If you create subdirectories within source include headers with subdirectory, i.e. 
 # #include "subdirectory/myheader.h"
 include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/external/include)
+include_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc)
 if (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
-	link_directories(${PROJECT_SOURCE_DIR}/external/libs/x86/4.2)
+	link_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/lib-pc/x86/4.2)
 elseif (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
- 	link_directories(${PROJECT_SOURCE_DIR}/external/libs/x64/4.2)
+ 	link_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/lib-pc/x64/4.2)
 else (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 	message(WARNING "Only 32 and 64 bit is supported by the prosilica api")
 endif (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
@@ -71,6 +79,7 @@ link_directories(${CAM_INTERFACE_LIBDIR})
 
 # Process CMakeLists.txt in the following subdirectory
 add_subdirectory(src)
+add_subdirectory(test)
 
 ##### COPY Configuration files into build directory
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/configuration ${PROJECT_BINARY_DIR}/configuration)
@@ -98,12 +107,4 @@ configure_file(${PROJECT_SOURCE_DIR}/configuration/${PROJECT_NAME}.pc.in
 # Install pkg-config file
 install(FILES ${CMAKE_BINARY_DIR}/configuration/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 
-# Dont' forget to add an install for your target, when you create your executable or library
-#    install(TARGETS ${PROJECT_NAME} 
-#		RUNTIME DESTINATION bin
-#		LIBRARY DESTINATION lib
-#    )
-
 ##### End INSTALL Configuration ################################################
-
-
