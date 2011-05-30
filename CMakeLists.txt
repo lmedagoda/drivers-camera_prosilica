@@ -95,7 +95,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${PROJECT_BINARY_DIR}/conf
 # TODO: recursive copy with directories
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION include/${PROJECT_NAME}
 	FILES_MATCHING PATTERN "*.h")
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/external/include/ DESTINATION include/${PROJECT_NAME}
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/ DESTINATION include/${PROJECT_NAME}
 	FILES_MATCHING PATTERN "*.h")
 
 
