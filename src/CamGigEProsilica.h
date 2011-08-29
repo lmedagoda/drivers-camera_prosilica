@@ -156,7 +156,7 @@ namespace camera
 	double timestamp_factor;
 	uint64_t timestamp_offset_camera_system; 	//in micro seconds
 	
-	const uint32_t max_package_size_t; //max package size of the ethernet packages (mtu) in byte (defaul is 16110)						    
+	uint32_t max_package_size_t; //max package size of the ethernet packages (mtu) in byte (defaul is 16110)						    
 
     public:
         CamGigEProsilica(uint32_t max_package_size = 16110);
