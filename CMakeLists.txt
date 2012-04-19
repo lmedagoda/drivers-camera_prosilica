@@ -4,6 +4,8 @@
 # ${PROJECT_SOURCE_DIR} refers to the folder of the CMakeLists.txt (project)
 # ${PROJECT_BINARY_DIR} refers to the folder from which cmake was executed (project/build).
 
+cmake_minimum_required(VERSION 2.6)
+include($ENV{ROCK_CMAKE_MACROS}/Rock.cmake)
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
@@ -29,13 +31,13 @@ endif()
 
 message("Build type set to: " ${CMAKE_BUILD_TYPE})
 
-cmake_minimum_required(VERSION 2.6)
-
 ##### Set Project name and version #####################################
 project(camera_prosilica_gige)
 set(PROJECT_VERSION 1.0)
 set(PROJECT_DESCRIPTION "Wrapper for Prosilica GigE Cameras")
 ##### End Set Project name and version #################################
+
+rock_doxygen()
 
 ##### Download Prosilica SDK if not present ############################
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
