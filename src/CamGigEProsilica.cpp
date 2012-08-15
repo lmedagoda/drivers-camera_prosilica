@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 //maximal number of cameras connected to the pc
 //increase the value if you have more cameras connected
