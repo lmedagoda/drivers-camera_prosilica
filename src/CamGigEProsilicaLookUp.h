@@ -292,6 +292,14 @@ namespace camera
                 string1 = "SyncOut2Invert";
                 string2 = "Off";
                 break;
+	    case enum_attrib::ExposureAutoAlgToMean:
+                string1 = "ExposureAutoAlg";
+                string2 = "Mean";
+                break;
+	    case enum_attrib::ExposureAutoAlgToFitRange:
+                string1 = "ExposureAutoAlg";
+                string2 = "FitRange";
+                break;
             default:
 	    {
 	       std::stringstream strstr;
