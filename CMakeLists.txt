@@ -5,7 +5,7 @@
 # ${PROJECT_BINARY_DIR} refers to the folder from which cmake was executed (project/build).
 
 cmake_minimum_required(VERSION 2.6)
-include($ENV{ROCK_CMAKE_MACROS}/Rock.cmake)
+find_package(Rock)
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
