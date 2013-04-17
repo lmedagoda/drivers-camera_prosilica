@@ -58,15 +58,17 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # If you create subdirectories within source include headers with subdirectory, i.e. 
 # #include "subdirectory/myheader.h"
 include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc)
+set(PROSILICA_SDK_DIR ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK)
+include_directories(${PROSILICA_SDK_DIR}/inc-pc)
 if (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
-	link_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/lib-pc/x86/4.2)
+    set(PROSILICA_ARCH x86)
 elseif (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
- 	link_directories(${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/lib-pc/x64/4.2)
+    set(PROSILICA_ARCH x64)
 else (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
-	message(WARNING "Only 32 and 64 bit is supported by the prosilica api")
+    message(FATAL_ERROR "Only 32 and 64 bit is supported by the prosilica api")
 endif (${CMAKE_SIZEOF_VOID_P} MATCHES 4)
 
+link_directories(${PROSILICA_SDK_DIR}/lib-pc/${PROSILICA_ARCH}/4.2)
 link_directories(${PROJECT_SOURCE_DIR}/build/lib)
 
 include(FindPkgConfig)
@@ -80,10 +82,26 @@ link_directories(${CAM_INTERFACE_LIBDIR})
 
 ##### End specification of build directory ##############################
 
-
 # Process CMakeLists.txt in the following subdirectory
 add_subdirectory(src)
 add_subdirectory(test)
+
+# make sure we build some of the useful examples
+configure_file(${PROJECT_SOURCE_DIR}/external/ARCH.in ${PROSILICA_SDK_DIR}/examples/ARCH
+    @ONLY)
+add_custom_target(prosilica-examples ALL
+    make -C ${PROSILICA_SDK_DIR}/examples/ListCameras sample
+    COMMAND make -C ${PROSILICA_SDK_DIR}/examples/Ping sample)
+install(FILES ${PROSILICA_SDK_DIR}/bin-pc/${PROSILICA_ARCH}/libPvAPI.so
+    DESTINATION lib)
+install(FILES ${PROSILICA_SDK_DIR}/examples/ListCameras/ListCameras
+    DESTINATION bin
+    RENAME prosilica_list_cameras
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+install(FILES ${PROSILICA_SDK_DIR}/examples/Ping/Ping
+    DESTINATION bin
+    RENAME prosilica_ping
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 ##### COPY Configuration files into build directory
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/configuration ${PROJECT_BINARY_DIR}/configuration)
@@ -99,7 +117,6 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION include/${PROJECT_NAME}
 	FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/ DESTINATION include/${PROJECT_NAME}
 	FILES_MATCHING PATTERN "*.h")
-
 
 # scripts/
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/scripts/ DESTINATION scripts)
