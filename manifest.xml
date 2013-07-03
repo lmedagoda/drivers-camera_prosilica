@@ -7,6 +7,7 @@
   <url>http://</url>
   <logo>http://</logo>
   <depend package="drivers/camera_interface" />
+  <depend package="wget" />
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />
