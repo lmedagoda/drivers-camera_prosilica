@@ -48,11 +48,11 @@ find_program(WGET wget)
 if(NOT WGET)
     message(FATAL_ERROR "Cannot download prosilica SDK. 'wget' is not available")
 endif()
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK)
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/PvApi.h)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND wget http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND tar xfvz Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
   execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND rm Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
-endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK)
+endif()
 
 ##### Specification of build directory #################################
 # Specifies a common place where CMake should put all the executables.
