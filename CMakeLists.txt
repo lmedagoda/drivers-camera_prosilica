@@ -6,6 +6,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 find_package(Rock)
+set(PROSILICA_SDK_URL "http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz")
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
@@ -40,18 +41,20 @@ set(PROJECT_DESCRIPTION "Wrapper for Prosilica GigE Cameras")
 rock_doxygen()
 
 ##### Download Prosilica SDK if not present ############################
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
-  execute_process(COMMAND mkdir ${PROJECT_SOURCE_DIR}/external)
-endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/external)
-
-find_program(WGET wget)
-if(NOT WGET)
-    message(FATAL_ERROR "Cannot download prosilica SDK. 'wget' is not available")
-endif()
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/PvApi.h)
-  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND wget http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz)
-  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND tar xfvz Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
-  execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external COMMAND rm Prosilica\ GigE\ SDK\ 1.20\ Linux.tgz)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/PvApi.h)
+  set(sdk_local_path ${CMAKE_CURRENT_SOURCE_DIR}/external/prosilica_sdk.tar.gz)
+  if (NOT EXISTS ${sdk_local_path})
+    message(STATUS "downloading and unpacking the Prosilica SDK into external/, this may take a while")
+    file(REMOVE ${sdk_local_path})
+    file(DOWNLOAD "${PROSILICA_SDK_URL}" ${sdk_local_path}.partial
+        STATUS sdk_download_status SHOW_PROGRESS)
+    if (NOT sdk_download_status)
+      message(FATAL_ERROR "could not download the prosilica SDK from ${PROSILICA_SDK_URL}")
+    endif()
+    file(RENAME ${sdk_local_path}.partial ${sdk_local_path})
+  endif()
+  execute_process(WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external
+    COMMAND ${CMAKE_COMMAND} -E tar xzf ${sdk_local_path})
 endif()
 
 ##### Specification of build directory #################################
