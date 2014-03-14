@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 find_package(Rock)
-set(PROSILICA_SDK_URL "http://pr.willowgarage.com/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz")
+set(PROSILICA_SDK_URL "http://download.ros.org/downloads/Prosilica%20GigE%20SDK%201.20%20Linux.tgz")
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
