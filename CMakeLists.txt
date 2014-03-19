@@ -43,7 +43,9 @@ rock_doxygen()
 ##### Download Prosilica SDK if not present ############################
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/Prosilica\ GigE\ SDK/inc-pc/PvApi.h)
   set(sdk_local_path ${CMAKE_CURRENT_SOURCE_DIR}/external/prosilica_sdk.tar.gz)
-  if (NOT EXISTS ${sdk_local_path})
+  file(SIZE ${sdk_local_path} ${sdk_size})
+  set(sdk_empty ${sdk_size} EQUAL 0)
+  if (NOT EXISTS ${sdk_local_path} OR $sdk_empty)
     message(STATUS "downloading and unpacking the Prosilica SDK into external/, this may take a while")
     file(REMOVE ${sdk_local_path})
     file(DOWNLOAD "${PROSILICA_SDK_URL}" ${sdk_local_path}.partial
