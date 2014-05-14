@@ -12,6 +12,8 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 //maximal number of cameras connected to the pc
 //increase the value if you have more cameras connected
@@ -129,7 +131,36 @@ namespace camera
 	   return &cam_info_;
 	 return NULL;
     };
-    
+
+    bool CamGigEProsilica::open(const std::string &ip,const AccessMode mode)
+    {
+        tPvCameraInfo _cam;
+        tPvIpSettings _settings;
+        CamInfo cam;
+
+        // convert string to int in network byte order
+        in_addr ip_address;
+        if(1 != inet_aton(ip.c_str(), &ip_address))
+            throw std::runtime_error("invalid ip address");
+        ip_address.s_addr = htonl(ip_address.s_addr);
+
+        // receive network info
+        tPvErr result = PvCameraInfoByAddr(ip_address.s_addr,&_cam,&_settings);
+        switch(result)
+        {
+            case ePvErrNotFound:
+                throw std::runtime_error("Camera could not be opened, "
+                        "because it can not be found. Maybe it was unplugged.");
+                break;
+	    case ePvErrSuccess:
+	   	break;
+	    default:
+		throw std::runtime_error("Camera could not be opened. Unexpected error.");
+        }
+        copy_tPvCameraInfo_To_tCamInfo(_cam,cam);
+        return open(cam,mode);
+    }
+
     bool CamGigEProsilica::open(const CamInfo &cam,const AccessMode mode)
     {
         if(isOpen())

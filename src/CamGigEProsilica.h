@@ -165,6 +165,7 @@ namespace camera
     public:
         int listCameras(std::vector<CamInfo>&cam_infos)const;
         bool open(const CamInfo &cam,const AccessMode mode);
+        bool open(const std::string &ip,const AccessMode mode);
         bool isOpen()const;
         bool close();
 	const CamInfo *getCameraInfo()const;
