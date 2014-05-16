@@ -142,7 +142,6 @@ namespace camera
         in_addr ip_address;
         if(1 != inet_aton(ip.c_str(), &ip_address))
             throw std::runtime_error("invalid ip address");
-        ip_address.s_addr = htonl(ip_address.s_addr);
 
         // receive network info
         tPvErr result = PvCameraInfoByAddr(ip_address.s_addr,&_cam,&_settings);
