@@ -8,9 +8,25 @@
 #ifndef _CAMGIGEPROSILICA_H
 #define	_CAMGIGEPROSILICA_H
 
+#define REG_SIO_INQUIRY			0x16000
+#define REG_SIO_MODE_INQUIRY		0x16100
+#define REG_SIO_MODE			0x16104
+#define REG_SIO_TX_INQUIRY		0x16120
+#define REG_SIO_TX_STATUS		0x16124
+#define REG_SIO_TX_CONTROL		0x16128
+#define REG_SIO_TX_LENGTH		0x1612C
+#define REG_SIO_RX_INQUIRY		0x16140
+#define REG_SIO_RX_STATUS		0x16144
+#define REG_SIO_RX_CONTROL		0x16148
+#define REG_SIO_RX_LENGTH		0x1614C
+#define REG_SIO_TX_BUFFER		0x16400
+#define REG_SIO_RX_BUFFER		0x16800
+
+
 #include <camera_interface/CamInterface.h>
 #include "arch.h"
 #include "PvApi.h"
+#include "PvRegIo.h"
 #include <list>
 
 namespace camera
@@ -208,6 +224,16 @@ namespace camera
 	
 	void getRange(const double_attrib::CamAttrib attrib,double &dmin,double &dmax);
 	void getRange(const int_attrib::CamAttrib attrib,int &imin,int &imax);
+	
+	// Various serial-io operations (return true if successful)
+	bool F_DisplayInfo(tPvHandle camera);
+	bool F_SetupSio(tPvHandle camera);
+	bool F_ReadData(tPvHandle camera, unsigned char* buffer, unsigned long bufferLength, unsigned long* pReceiveLength);
+	bool F_WriteData(tPvHandle camera, const unsigned char* buffer, unsigned long length);
+	// Read a byte array from the camera.
+	bool F_ReadMem(tPvHandle camera, unsigned long address, unsigned char* buffer, unsigned long length);
+	// Write a byte array to the camera. 
+	bool F_WriteMem(tPvHandle camera, unsigned long address, const unsigned char* buffer, unsigned long length);
 	
     private:
         //helpers

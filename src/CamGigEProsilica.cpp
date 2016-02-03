@@ -1071,8 +1071,197 @@ namespace camera
      
      void CamGigEProsilica::checkCameraStatus()const
      {
-	if (!isOpen())
-           throw std::runtime_error("No camera is open!");
+       if (!isOpen())
+	 throw std::runtime_error("No camera is open!");
      }
+     
+     bool CamGigEProsilica::F_DisplayInfo(tPvHandle camera)
+     {
+       unsigned long		regAddresses[4];
+       unsigned long		regValues[4];
+       
+       regAddresses[0] = REG_SIO_INQUIRY;
+       regAddresses[1] = REG_SIO_MODE_INQUIRY;
+       regAddresses[2] = REG_SIO_TX_INQUIRY;
+       regAddresses[3] = REG_SIO_RX_INQUIRY;
+       
+       if (PvRegisterRead(camera, 4, regAddresses, regValues, NULL) == ePvErrSuccess)
+       {
+	 printf("SerialIoInquiry:    0x%08lx\n", regValues[0]);
+	 printf("SerialModeInquiry:  0x%08lx\n", regValues[1]);
+	 printf("SerialTxInquiry:    0x%08lx\n", regValues[2]);
+	 printf("SerialRxInquiry:    0x%08lx\n\n", regValues[3]);
+	 return true;
+       }
+       else
+	 return false;
+     }
+     
+     bool CamGigEProsilica::F_SetupSio(tPvHandle camera)
+     {
+       unsigned long		regAddresses[4];
+       unsigned long		regValues[4];
+       
+       regAddresses[0] = REG_SIO_MODE;
+       regValues[0]	= 0x00000C05;  // 9600, N, 8, 1
+       
+       regAddresses[1] = REG_SIO_TX_CONTROL;
+       regValues[1]	= 3;  // Reset & enable transmitter
+       
+       regAddresses[2] = REG_SIO_RX_CONTROL;
+       regValues[2]	= 3;  // Reset & enable receiver
+       
+       regAddresses[3] = REG_SIO_RX_STATUS;
+       regValues[3]	= 0xFFFFFFFF;  // Clear status bits
+       
+       if (PvRegisterWrite(camera, 4, regAddresses, regValues, NULL) == ePvErrSuccess)
+	 return true;
+       else
+	 return false;
+     }
+     
+     bool CamGigEProsilica::F_ReadData(tPvHandle camera, unsigned char* buffer, unsigned long bufferLength, unsigned long* pReceiveLength)
+     {
+       unsigned long		regAddress;
+       unsigned long		dataLength;
+       
+       // How many characters to read?
+       regAddress = REG_SIO_RX_LENGTH;
+       if (PvRegisterRead(camera, 1, &regAddress, &dataLength, NULL) != ePvErrSuccess)
+	 return false;
+       
+       // It must fit in the user's buffer.
+       if (dataLength > bufferLength)
+	 dataLength = bufferLength;
+       
+       if (dataLength > 0)
+       {
+	 // Read the data.
+	 if (!F_ReadMem(camera, REG_SIO_RX_BUFFER, buffer, dataLength))
+	   return false;
+	 // Decrement the camera's read index.
+	 regAddress = REG_SIO_RX_LENGTH;
+	 if (PvRegisterWrite(camera, 1, &regAddress, &dataLength, NULL) != ePvErrSuccess)
+	   return false;
+       }
+       
+       *pReceiveLength = dataLength;
+       return true;
+     }
+     
+     bool CamGigEProsilica::F_WriteData (tPvHandle camera, const unsigned char* buffer, unsigned long length)
+     {
+       unsigned long		regAddress;
+       unsigned long		regValue;
+       
+       // Wait for transmitter ready.
+       do
+       {
+	 regAddress = REG_SIO_TX_STATUS;
+	 if (PvRegisterRead(camera, 1, &regAddress, &regValue, NULL) != ePvErrSuccess)
+	   return false;
+       }
+       while (!(regValue & 1));  // Waiting for transmitter-ready bit
+       
+       // Write the buffer.
+       if (!F_WriteMem(camera, REG_SIO_TX_BUFFER, buffer, length))
+	 return false;
+       
+       // Write the buffer length.  This triggers transmission.
+       regAddress = REG_SIO_TX_LENGTH;
+       regValue = length;
+       if (PvRegisterWrite(camera, 1, &regAddress, &regValue, NULL) != ePvErrSuccess)
+	 return false;
+       
+       return true;
+     }
+     
+     bool CamGigEProsilica::F_ReadMem(tPvHandle camera, unsigned long address, unsigned char* buffer, unsigned long length)
+     {
+       const unsigned long	numRegs = (length + 3) / 4;
+       unsigned long*		pAddressArray = new unsigned long[numRegs];
+       unsigned long*		pDataArray = new unsigned long[numRegs];
+       bool			result;
+       unsigned long		i;
+       
+       
+       //
+       // We want to read an array of bytes from the camera.  To do this, we
+       // read sequential registers which contain the data array.  The register
+       // MSB is the first byte of the array.
+       //
+       
+       // 1.  Generate read addresses
+       for (i = 0; i < numRegs; i++)
+	 pAddressArray[i] = address + (i*4);
+       
+       // 2.  Execute read.
+       if (PvRegisterRead(camera, numRegs, pAddressArray, pDataArray, NULL) == ePvErrSuccess)
+       {
+	 
+	 // 3.  Convert from MSB-packed registers to byte array
+	 for (i = 0; i < length; i++)
+	 {
+	   unsigned long data = 0;
+	   
+	   if (i % 4 == 0)
+	     data = pDataArray[i/4];
+	   
+	   buffer[i] = (unsigned char)((data >> 24) & 0xFF);
+	   data <<= 8;
+	 }
+	 
+	 result = true;
+       }
+       else
+	 result = false;
+       
+       delete [] pAddressArray;
+       delete [] pDataArray;
+       
+       return result;
+     }
+     
+     
+     bool CamGigEProsilica::F_WriteMem(tPvHandle camera, unsigned long address, const unsigned char* buffer, unsigned long length)
+     {
+       const unsigned long	numRegs = (length + 3) / 4;
+       unsigned long*		pAddressArray = new unsigned long[numRegs];
+       unsigned long*		pDataArray = new unsigned long[numRegs];
+       bool				result;
+       unsigned long		i;
+       
+       
+       //
+       // We want to write an array of bytes from the camera.  To do this, we
+       // write sequential registers with the data array.  The register MSB
+       // is the first byte of the array.
+       //
+       
+       // 1.  Generate write addresses, and convert from byte array to MSB-packed
+       // registers.
+       for (i = 0; i < numRegs; i++)
+       {
+	 pAddressArray[i] = address + (i*4);
+	 
+	 pDataArray[i] = (unsigned long)*(buffer++) << 24;
+	 pDataArray[i] |= (unsigned long)*(buffer++) << 16;
+	 pDataArray[i] |= (unsigned long)*(buffer++) << 8;
+	 pDataArray[i] |= (unsigned long)*(buffer++);
+       }
+       
+       // 2.  Execute write.
+       if (PvRegisterWrite(camera, numRegs, pAddressArray, pDataArray, NULL) == ePvErrSuccess)
+	 result = true;
+       else
+	 result = false;
+       
+       delete [] pAddressArray;
+       delete [] pDataArray;
+       
+       return result;
+     }
+     
+     
 
 }
